@@ -1,11 +1,12 @@
 # Personal Finance
-The purpose of this application to easily track your financials by giving the program a set of keywords.
-. As daily life usually has quite a lot of similar transactions (groceries, shopping, eating out etc.)
-you can create a complete overview of your spending patern rather quickly.
+The purpose of this application to easily track your personal finance by giving the program a set of keywords.
+As daily life usually has quite a lot of similar transactions (groceries, shopping, eating out etc.)
+you can create a complete overview of your spending pattern rather quickly.
 
 The program creates the following:
 - All transactions per year
-    - If you include your transactions from the past 10 years, you will get a total of 10 files.
+    - If you include your transactions from the past 10 years, you will get a total of 10 files in
+    the folder "Banksheets"
     - Each file includes the tabs 1 till 12 (for each month)
 - All transactions split by category
     - Comes in handy when you want to check if transactions are recorded correctly.
@@ -13,6 +14,7 @@ The program creates the following:
 - A complete overview for each year and month
     - this sheet can be altered by yourself as the program does not overwrite any
     changes you make to the file. Therefore you can include averages and such
+    as shown in [this example](templates/Total Overview Example.xlsx).
     
 ![PersonalFinanceWindow](images/PersonalFinanceWindow.PNG)
     
@@ -32,9 +34,16 @@ you can make changes to the input file until you are satisfied with the result.
 5. Make adjustments to the Complete Overview file however you like.
 
 ## Contribution
-If you wish to make this work for your bank, you can contribute by showing me
-formats of your (or other) bank(s) so I can include then. Of course, exclude any personal data in them.
 
+### Bank Data
+If you wish to make this work for your bank, you can contribute by showing me
+formats of your (or other) bank(s) so I can include it to the list.
+Of course, exclude any personal data in them.
+
+Current supported banks:
+- [ING](https://www.ing.nl/)
+
+### Testing
 If you wish to test the packaging, you can do so by:
 - Clone/Download this repository.
 - Open CMD/PowerShell/Terminal in folder.
