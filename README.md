@@ -14,7 +14,7 @@ The program creates the following:
     - this sheet can be altered by yourself as the program does not overwrite any
     changes you make to the file. Therefore you can include averages and such
     
-![](Images/PersonalFinanceWindow.png)
+![](images/PersonalFinanceWindow.png)
     
 ## Set-Up / Installation
 1. Download the most recent release [here](https://github.com/JerBouma/PersonalFinance/releases).
