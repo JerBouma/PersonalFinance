@@ -18,7 +18,7 @@ def excel_categories(input, output, bank_data):
 
     for category in categories:
         data = bank_data[bank_data["Categories"] == category].drop("Categories",
-                                                                 axis=1)
+                                                                   axis=1)
 
         data.to_excel(writer, category)
 
@@ -62,7 +62,7 @@ def excel_bank_data_years(output, bank_data):
 
         for month in months.unique():
             data = bank_data[(bank_data['Year'] == year)
-                            & (bank_data['Month'] == month)]
+                             & (bank_data['Month'] == month)]
             data = data.sort_values(by='Day')
             data = data.set_index(data['Day'])
             data = data.drop(['Day', 'Month', 'Year'], axis=1)
@@ -96,8 +96,8 @@ def excel_report(input, output, bank_data):
 
     bank_data = bank_data[bank_data['Categories'] != savings_account]
     bank_data = bank_data.groupby(['Year',
-                                'Month',
-                                'Categories']).agg({amount : 'sum'})
+                                   'Month',
+                                   'Categories']).agg({amount : 'sum'})
 
     for month in bank_data.index.get_level_values(1).astype(str).unique():
         for category in bank_data.index.get_level_values(2).unique():

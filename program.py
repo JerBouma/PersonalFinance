@@ -103,7 +103,6 @@ class Window(Frame):
 root = Tk()
 app = Window(root)
 app.configure(background=background)
-# root.geometry('725x475')
 root.iconbitmap("images/PersonalFinanceICO.ico")
 root.resizable(False, False)
 root.mainloop() 
