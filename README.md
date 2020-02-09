@@ -14,7 +14,7 @@ The program creates the following:
 - A complete overview for each year and month
     - this sheet can be altered by yourself as the program does not overwrite any
     changes you make to the file. Therefore you can include averages and such
-    as shown in [this example](templates/Total Overview Example.xlsx).
+    as shown in the example in the "templates" folder.
     
 ![PersonalFinanceWindow](images/PersonalFinanceWindow.PNG)
     
