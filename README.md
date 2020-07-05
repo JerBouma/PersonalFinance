@@ -3,7 +3,7 @@ The purpose of this application to easily track your personal finance by giving 
 As daily life usually has quite a lot of similar transactions (groceries, shopping, eating out etc.)
 you can create a complete overview of your spending pattern rather quickly.
 
-[](images/SpreadsheetImageExample.PNG)
+![](images/SpreadsheetImageExample.PNG)
 
 ## Set-Up / Installation
 1. Copy the spreadsheet template you can find [here](
