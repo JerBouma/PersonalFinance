@@ -1,3 +1,6 @@
+# Personal Finance specific
+client_secret.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
