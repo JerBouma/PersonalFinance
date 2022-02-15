@@ -22,6 +22,8 @@ https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account).
     If you use my template, these are already correct if you change the name of the spreadsheet to "Finances".
 6. Don't forget to add the "client_secret.json" file to the same folder.
 7. Download your transaction data as CSV (for example: *NLXXINGBXXXXXXXXXX_01-01-2011_02-07-2020.csv*)
-    - Currently the only working bank is [ING](https://www.ing.nl/). If you want to make it work with your bank,
-    please send me a file with the format your bank uses so I can include it as an option.
+    - Currently the only working banks are [ING](https://www.ing.nl/) and [ASN](https://www.asnbank.nl/). If you want to make it work with your bank, please send me a file with the format your bank uses so I can include it as an option.
 8. Run **personal_finance** in your terminal and checkout the result.
+
+## Creating a new CSV Config
+Based on the `CsvConfig` dataclass in `__main__.py` you can create a new CSV config for a different bank. Add it to the `csv_configs` directory and select it when running the program. Examples and default configs can be found in this folder already.

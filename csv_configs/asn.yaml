@@ -1,0 +1,27 @@
+date_col: date
+date_format: "%d-%m-%Y"
+amount_col: amount
+amount_decimal_delimiter: "."
+name_description_col: name
+notification_col: notification
+delimiter: ","
+columns_names:
+- date
+- iban
+- contra iban
+- name
+- empty 0
+- empty 1
+- empty 2
+- currency 0
+- balance
+- currency
+- amount
+- date 1
+- date 2
+- code
+- type
+- code 1
+- reference
+- notification
+- number
