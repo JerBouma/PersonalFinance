@@ -8,10 +8,8 @@ you can create a complete overview of your spending pattern rather quickly.
 ## Set-Up / Installation
 1. Copy the spreadsheet template you can find [here](
 https://docs.google.com/spreadsheets/d/183sUTSwVHJ600WKz7DN-OzPW8FxVmDkVkNy6M_GFZsQ/edit?usp=sharing).
-2. Connect a Spreadsheet to gspread, follow [this guide](
-https://towardsdatascience.com/accessing-google-spreadsheet-data-using-python-90a5bc214fd2) until "Reading
-spreadsheet data with Python". Don't forget to also include the Google Sheets API which is not mentioned in
-the article.
+2. Connect a Spreadsheet to gspread, follow "For Bots: Using Service Account" until step 6 from [this guide](
+https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account).
 3. Download **personal_finance.py** and set the parameters in the "personal_finance" function to the right spreadsheet
 and sheets. If you use my template, these are already correct if you change the name of the spreadsheet to "Finances".
 Also, don't forget to add the "client_secret.json" file to the same folder.
