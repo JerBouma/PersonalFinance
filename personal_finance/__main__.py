@@ -1,75 +1,91 @@
+from dataclasses import dataclass
+import dataclasses
+import textwrap
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+import yaml
 import gspread
 import gspread_dataframe as gd
 from oauth2client.service_account import ServiceAccountCredentials
 
 
-def personal_finance(spreadsheet_name="Finances", input_sheet="Input", bank_data_sheet="Bank Data",
-                     client_secret="client_secret.json"):
+CONFIG_FILE = "./config.yaml"
+
+@dataclass
+class Config:
+    spreadsheet_name: str = "Finances"
+    input_sheet: str = "Input"
+    bank_data_sheet: str = "Bank Data"
+    client_secret_file: str = "./client_secret.json"
+
+def personal_finance():
     """
     Description
     ----
     Performs all functions to fully load in your bank data and write it out with categories assigned.
 
-    Input
-    ----
-    spreadsheet_name (string)
-        Name of the spreadsheet
-    input_sheet (string)
-        Name of the input sheet inside the spreadsheet
-    bank_data_sheet (string)
-        Name of the bank data sheet inside the spreadsheet
-    client_secret (string)
-        Client secret from your Google API used to access the spreadsheet
+    Requires a YAML CONFIG_FILE to be set with the contents as defined in the Config dataclass.
 
     Output
     ----
     Returns no variable but loads data, assigns categories and writes to the spreadsheet
     """
-    print("\033[1m" + "Welcome to the Personal Finance tool" + "\033[0m")
-    print("-------------------------------------")
-    print("This tool currently only works for ING bank.")
-    print('')
-    print("To use this program please follow the following steps:")
-    print("1. Connect gspread to the spreadsheet, fill tab " + input_sheet + " with your category filters")
-    print("and create the tab " + bank_data_sheet)
-    print("2. Download your transactions history as CSV file when logging into your account on ING")
-    print("3. Enter the CSV file (+ location) from ING below and press ENTER")
-    print('')
-    bank_file = input("File: ")
-    print('')
-    print("Parsing your data and assigning categories..")
-    print('')
+    config = read_config(CONFIG_FILE)
+
+    print(
+        textwrap.dedent(f"""
+            \033[1m
+            Welcome to the Personal Finance tool
+            \033[0m
+            -------------------------------------
+            This tool currently only works for ING bank.
+
+            To use this program please follow the following steps:
+            1. Connect gspread to the spreadsheet, fill tab {config.input_sheet} with your category filters
+            and create the tab {config.bank_data_sheet}.
+            2. Download your transactions history as CSV file when logging into your account on ING
+            3. Enter the CSV file (location) from ING below and press ENTER
+        """)
+    )
+    bank_file = input("CSV File Location: ")
+
+    print("\nParsing your data and assigning categories...\n")
 
     # Create Client
-    spreadsheet = initialize_spreadsheet(client_secret, spreadsheet_name)
+    spreadsheet = initialize_spreadsheet(config.client_secret_file, config.spreadsheet_name)
 
     # Load Bank File (.csv) & Input from Spreadsheet
     bank_data = load_bank_file(bank_file)
-    bank_input = load_personal_input(spreadsheet, input_sheet)
+    bank_input = load_personal_input(spreadsheet, config.input_sheet)
 
     # Perform Category assignment
     bank_data_selected = category_selector(bank_data, bank_input)
 
     # Write to the Spreadsheet
-    write_to_spreadsheet(bank_data_selected, spreadsheet, bank_data_sheet)
+    write_to_spreadsheet(bank_data_selected, spreadsheet, config.bank_data_sheet)
 
-    print('')
-    print("Done! Find the data in the spreadsheet " + spreadsheet_name
-          + " on the tab " + bank_data_sheet)
-    print('')
+    print(f"\nDone! Find the data in the spreadsheet {config.spreadsheet_name} on the tab {config.bank_data_sheet}!")
+    return
 
 
-def initialize_spreadsheet(client_secret="client_secret.json", spreadsheet='Financien'):
+def read_config(config_file: str) -> Config:
+    """Read the config file from the given location in YAML."""
+    try:
+        with open(config_file, "r") as f:
+            return Config(**yaml.safe_load(f))
+    except yaml.YAMLError as e:
+        print(e)
+        exit()
+    except FileNotFoundError as e:
+        print("No config file found at {config_file}, using defaults.")
+        pass
+
+def initialize_spreadsheet(client_secret, spreadsheet):
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     credentials = ServiceAccountCredentials.from_json_keyfile_name(client_secret, scope)
     client = gspread.authorize(credentials)
-
-    spreadsheet = client.open(spreadsheet)
-
-    return spreadsheet
+    return client.open(spreadsheet)
 
 
 def load_bank_file(file):
@@ -105,7 +121,7 @@ def load_bank_file(file):
     data[amount] = pd.to_numeric(data[amount])
     values = []
 
-    for row, value in data.iterrows():
+    for _, value in data.iterrows():
         if value[debit_credit] in ('Debit', 'Af'):
             values.append(-value[amount])
         elif value[debit_credit] in ('Credit', 'Bij'):
@@ -149,9 +165,7 @@ def load_personal_input(spreadsheet, sheet):
     """
     sheet = spreadsheet.worksheet(sheet)
     input_data = pd.DataFrame(sheet.get_all_records())
-    input_data = input_data.replace('', np.nan)
-
-    return input_data
+    return input_data.replace('', np.nan)
 
 
 def category_selector(bank_data, input_data):
@@ -176,7 +190,7 @@ def category_selector(bank_data, input_data):
     notifications = bank_data.columns[2]
     description = bank_data.columns[0]
 
-    for row, value in tqdm(bank_data.iterrows(), total=bank_data.shape[0]):
+    for _, value in tqdm(bank_data.iterrows(), total=bank_data.shape[0]):
         category_decision = "Other"
         for category in input_data.columns:
             if category_decision == "Other":
@@ -217,7 +231,10 @@ def write_to_spreadsheet(bank_data, spreadsheet, sheet):
 
 
 if __name__ == "__main__":
-    personal_finance()
+    try:
+        personal_finance()
+    except KeyboardInterrupt as e:
+        print("\nCancelled by CTRL + C.")
 
 
 

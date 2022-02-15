@@ -14,10 +14,16 @@ spreadsheet data with Python". Don't forget to also include the Google Sheets AP
 the article.
 3. Clone this repository.
 4. Run `pip install -e .` in this repository, this will install it as CLI tool.
-4. Set the parameters in the "personal_finance" function to the right spreadsheet and sheets. \
-   If you use my template, these are already correct if you change the name of the spreadsheet to "Finances".
-5. Don't forget to add the "client_secret.json" file to the same folder.
-3. Download your transaction data as CSV (for example: *NLXXINGBXXXXXXXXXX_01-01-2011_02-07-2020.csv*)
+5. Configure `config.yaml` to your needs. For example:
+    ```yaml
+    spreadsheet_name: Finances
+    input_sheet: Input
+    bank_data_sheet: Bank Data
+    client_secret_file: ./client_secret.json
+    ```
+    If you use my template, these are already correct if you change the name of the spreadsheet to "Finances".
+6. Don't forget to add the "client_secret.json" file to the same folder.
+7. Download your transaction data as CSV (for example: *NLXXINGBXXXXXXXXXX_01-01-2011_02-07-2020.csv*)
     - Currently the only working bank is [ING](https://www.ing.nl/). If you want to make it work with your bank,
     please send me a file with the format your bank uses so I can include it as an option.
-4. Run **personal_finance** in your terminal and checkout the result.
+8. Run **personal_finance** in your terminal and checkout the result.
