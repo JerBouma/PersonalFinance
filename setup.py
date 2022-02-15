@@ -5,6 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="personal_finance",
+    packages=["personal_finance"],
     version="1.0.0",
     license="MIT",
     description="Easily track your personal finance",
@@ -20,9 +21,9 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        "tqdm==4.62.3",
-        "gspread_dataframe==3.2.2",
-        "oauth2client==4.1.3",
+        "tqdm>=4.62.3",
+        "gspread_dataframe>=3.2.2",
+        "oauth2client>=4.1.3",
     ],
-    scripts=["./personal_finance"]
+    scripts=["./scripts/personal_finance"]
 )
