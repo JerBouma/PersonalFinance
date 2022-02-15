@@ -1,0 +1,9 @@
+date_col: Datum
+date_format: "%Y%m%d"
+amount_col: Bedrag (EUR)
+amount_decimal_separator: ","
+debit_credit_col: Af Bij
+debit: Af
+credit: Bij
+name_description_col: Naam / Omschrijving
+notification_col: Mededelingen

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-import dataclasses
 import textwrap
+from typing import Optional, TypeVar
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -18,6 +18,21 @@ class Config:
     input_sheet: str = "Input"
     bank_data_sheet: str = "Bank Data"
     client_secret_file: str = "./client_secret.json"
+    csv_config_file: str = "./csv_configs/ing.yaml"
+
+
+@dataclass
+class CsvConfig:
+    date_col: str
+    date_format: str
+    amount_col: str
+    amount_decimal_separator: str
+    debit_credit_col: Optional[str]
+    debit: Optional[str]
+    credit: Optional[str]
+    name_description_col: str
+    notification_col: str
+
 
 def personal_finance():
     """
@@ -31,7 +46,8 @@ def personal_finance():
     ----
     Returns no variable but loads data, assigns categories and writes to the spreadsheet
     """
-    config = read_config(CONFIG_FILE)
+    config = data_from_yaml(CONFIG_FILE, Config)
+    csv_config = data_from_yaml(config.csv_config_file, CsvConfig)
 
     print(
         textwrap.dedent(f"""
@@ -48,7 +64,8 @@ def personal_finance():
             3. Enter the CSV file (location) from ING below and press ENTER
         """)
     )
-    bank_file = input("CSV File Location: ")
+    DEFAULT_CSV_FILE_LOCATION = "input.csv"
+    bank_file = input(f"CSV File Location [{DEFAULT_CSV_FILE_LOCATION}]: ") or DEFAULT_CSV_FILE_LOCATION
 
     print("\nParsing your data and assigning categories...\n")
 
@@ -56,11 +73,11 @@ def personal_finance():
     spreadsheet = initialize_spreadsheet(config.client_secret_file, config.spreadsheet_name)
 
     # Load Bank File (.csv) & Input from Spreadsheet
-    bank_data = load_bank_file(bank_file)
+    bank_data = load_bank_file(bank_file, csv_config)
     bank_input = load_personal_input(spreadsheet, config.input_sheet)
 
     # Perform Category assignment
-    bank_data_selected = category_selector(bank_data, bank_input)
+    bank_data_selected = category_selector(bank_data, bank_input, csv_config)
 
     # Write to the Spreadsheet
     write_to_spreadsheet(bank_data_selected, spreadsheet, config.bank_data_sheet)
@@ -69,26 +86,29 @@ def personal_finance():
     return
 
 
-def read_config(config_file: str) -> Config:
+T = TypeVar("T")
+def data_from_yaml(file: str, dataclass_: T) -> T:
     """Read the config file from the given location in YAML."""
     try:
-        with open(config_file, "r") as f:
-            return Config(**yaml.safe_load(f))
+        with open(file, "r") as f:
+            return dataclass_(**yaml.safe_load(f))
     except yaml.YAMLError as e:
         print(e)
         exit()
     except FileNotFoundError as e:
         print("No config file found at {config_file}, using defaults.")
         pass
+    return dataclass_()
 
-def initialize_spreadsheet(client_secret, spreadsheet):
+
+def initialize_spreadsheet(client_secret: str, spreadsheet: gspread.Spreadsheet):
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     credentials = ServiceAccountCredentials.from_json_keyfile_name(client_secret, scope)
     client = gspread.authorize(credentials)
     return client.open(spreadsheet)
 
 
-def load_bank_file(file):
+def load_bank_file(file: str, csv_config: CsvConfig) -> pd.DataFrame:
     """
     Description
     ----
@@ -106,36 +126,29 @@ def load_bank_file(file):
     data (DataFrame)
         All bank data neatly converted to a DataFrame to be used by the program.
     """
-    data = pd.read_csv(file)
+    df = pd.read_csv(file)
 
-    debit_credit = data.columns[5]
-    amount = data.columns[6]
+    df[csv_config.amount_col] = df[csv_config.amount_col].apply(
+        lambda x: x.replace(csv_config.amount_decimal_separator, ".")
+    )
+    df[csv_config.amount_col] = pd.to_numeric(df[csv_config.amount_col])
 
-    year = data['Datum'].astype(str).str[:4]
-    month = data['Datum'].astype(str).str[4:6]
-    day = data['Datum'].astype(str).str[6:]
-    date = pd.to_datetime(year + "-" + month + "-" + day).dt.date
+    if csv_config.debit_credit_col:
+        values = []
+        for _, value in df.iterrows():
+            if value[csv_config.debit_credit_col] == csv_config.debit:
+                values.append(-value[csv_config.amount_col])
+            elif value[csv_config.debit_credit_col] == csv_config.credit:
+                values.append(value[csv_config.amount_col])
 
-    data[amount] = data[amount].apply(
-        lambda x: x.replace(',', '.'))
-    data[amount] = pd.to_numeric(data[amount])
-    values = []
+    df[csv_config.amount_col] = values
 
-    for _, value in data.iterrows():
-        if value[debit_credit] in ('Debit', 'Af'):
-            values.append(-value[amount])
-        elif value[debit_credit] in ('Credit', 'Bij'):
-            values.append(value[amount])
-
-    data[amount] = values
-
-    data = data.set_index(date)
-    data = data.drop(
-        [data.columns[0], data.columns[2],
-         data.columns[3], data.columns[4],
-         data.columns[5], data.columns[7]], axis=1)
-
-    return data
+    # Parse date column
+    date = pd.to_datetime(df[csv_config.date_col], format=csv_config.date_format)
+    df = df.set_index(date)
+    # Only return df with relevant columns
+    columns = [csv_config.name_description_col, csv_config.amount_col, csv_config.notification_col]
+    return df[columns]
 
 
 def load_personal_input(spreadsheet, sheet):
@@ -168,7 +181,7 @@ def load_personal_input(spreadsheet, sheet):
     return input_data.replace('', np.nan)
 
 
-def category_selector(bank_data, input_data):
+def category_selector(bank_data: pd.DataFrame, input_data: pd.DataFrame, csv_config: CsvConfig) -> pd.DataFrame:
     """
     Description
     ----
@@ -187,25 +200,25 @@ def category_selector(bank_data, input_data):
         Returns the bank data with an extra column, "Category".
     """
     categories = []
-    notifications = bank_data.columns[2]
-    description = bank_data.columns[0]
+    # Make sure we don't modify the input
+    new_bank_data = bank_data.copy()
 
-    for _, value in tqdm(bank_data.iterrows(), total=bank_data.shape[0]):
+    for _, value in tqdm(new_bank_data.iterrows(), total=new_bank_data.shape[0]):
         category_decision = "Other"
         for category in input_data.columns:
             if category_decision == "Other":
                 for item in input_data[category].dropna():
-                    if item.lower() in value[notifications].lower():
+                    if item.lower() in value[csv_config.notification_col].lower():
                         category_decision = category
                         continue
-                    elif item.lower() in value[description].lower():
+                    elif item.lower() in value[csv_config.name_description_col].lower():
                         category_decision = category
                         continue
         categories.append(category_decision)
 
-    bank_data["Categories"] = categories
+    new_bank_data["Categories"] = categories
 
-    return bank_data
+    return new_bank_data
 
 
 def write_to_spreadsheet(bank_data, spreadsheet, sheet):
