@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+if [[ -x $(command -v python3) ]]; then
+    python3 -m personal_finance $@
+elif [[ -x $(command -v python) ]]; then
+    python -m personal_finance $@
+else
+    echo "Python must be installed to use this CLI"
+    exit 126
+fi
