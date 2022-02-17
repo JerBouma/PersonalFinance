@@ -12,12 +12,12 @@ https://docs.google.com/spreadsheets/d/183sUTSwVHJ600WKz7DN-OzPW8FxVmDkVkNy6M_GF
 https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account).
 3. Clone this repository.
 4. Run `pip install -e .` in this repository, this will install it as CLI tool.
-5. Configure `config.yaml` to your needs. For example:
+5. Configure `config.yaml` to your needs. By default this is set to:
     ```yaml
     spreadsheet_name: Finances
     input_sheet: Input
     bank_data_sheet: Bank Data
-    client_secret_file: ./client_secret.json
+    client_secret_file: client_secret.json
     ```
     If you use my template, these are already correct if you change the name of the spreadsheet to "Finances".
 6. Don't forget to add the "client_secret.json" file to the same folder.
