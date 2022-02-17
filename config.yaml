@@ -1,0 +1,4 @@
+spreadsheet_name: Finances
+input_sheet: Input
+bank_data_sheet: Bank Data
+client_secret_file: client_secret.json
