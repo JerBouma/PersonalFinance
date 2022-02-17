@@ -49,7 +49,7 @@ class CsvConfig:
     # Delimiter of the CSV file itself
     delimiter: str = ","
     # Optional custom column names if the CSV has no header row
-    columns_names: List[str] = None
+    column_names: List[str] = None
 
 
 def personal_finance():
@@ -146,7 +146,7 @@ def load_bank_file(file: str, csv_config: CsvConfig) -> pd.DataFrame:
     data (DataFrame)
         All bank data neatly converted to a DataFrame to be used by the program.
     """
-    df = pd.read_csv(file, delimiter=csv_config.delimiter, names=csv_config.columns_names)
+    df = pd.read_csv(file, delimiter=csv_config.delimiter, names=csv_config.column_names)
 
     df[csv_config.amount_col] = (
         df[csv_config.amount_col].astype(str).str.replace(csv_config.amount_decimal_delimiter, ".", regex=False)
@@ -167,7 +167,7 @@ def load_bank_file(file: str, csv_config: CsvConfig) -> pd.DataFrame:
     return df.set_index(date)
 
 
-def load_personal_input(spreadsheet, sheet):
+def load_personal_input(spreadsheet: gspread.Spreadsheet, sheet: str):
     """
     Description
     ----
@@ -197,7 +197,7 @@ def load_personal_input(spreadsheet, sheet):
     return input_data.replace('', np.nan)
 
 
-def category_selector(bank_data: pd.DataFrame, input_data: pd.DataFrame, csv_config: CsvConfig) -> pd.DataFrame:
+def category_selector(bank_data: pd.DataFrame, input_data: pd.DataFrame, csv_config: CsvConfig):
     """
     Description
     ----
@@ -237,7 +237,7 @@ def category_selector(bank_data: pd.DataFrame, input_data: pd.DataFrame, csv_con
     return new_bank_data
 
 
-def write_to_spreadsheet(bank_data, spreadsheet, sheet):
+def write_to_spreadsheet(bank_data: pd.DataFrame, spreadsheet: gspread.Spreadsheet, sheet: str):
     """
     Description
     ----

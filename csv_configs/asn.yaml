@@ -5,7 +5,7 @@ amount_decimal_delimiter: "."
 name_description_col: name
 notification_col: notification
 delimiter: ","
-columns_names:
+column_names:
 - date
 - iban
 - contra iban
