@@ -7,7 +7,7 @@ you can create a complete overview of your spending pattern rather quickly.
 
 ## Set-Up / Installation
 1. Copy the spreadsheet template you can find [here](
-https://docs.google.com/spreadsheets/d/183sUTSwVHJ600WKz7DN-OzPW8FxVmDkVkNy6M_GFZsQ/edit?usp=sharing).
+https://docs.google.com/spreadsheets/d/1XequpKhDsbpCpThSxrI_4YIP9JacSd6XHVXL9uNMItw/edit?usp=sharing).
 2. Connect a Spreadsheet to gspread, follow "For Bots: Using Service Account" until step 6 from [this guide](
 https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account).
 3. Clone this repository.
