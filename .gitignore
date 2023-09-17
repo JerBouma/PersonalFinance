@@ -1,11 +1,15 @@
 # Personal Finance specific
-client_secret.json
-Finances EXAMPLE.gsheet
+cashflow.yaml
+*.xlsx
+*.pickle
+cashflow/*.csv
+cashflow/*.xlsx
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+.DS_Store
 
 # C extensions
 *.so

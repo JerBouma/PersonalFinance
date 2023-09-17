@@ -1,27 +1,9 @@
-# Personal Finance
-The purpose of this application to easily track your personal finance by giving the script a set of keywords.
-As daily life usually has quite a lot of similar transactions (groceries, shopping, eating out etc.)
-you can create a complete overview of your spending pattern rather quickly.
+Tracking personal finances can be tedious. It either requires a massive time investment to keep everything well categorized as new transactions come in or it is far from accurate with tools that try to do prediction to define categories for you. Perhaps it works fine for names such as "Wall Mart" or "Starbucks" but your local bakery called "Morty's Place" is definitely not going to get picked up by the model. Many personal finance tools allow you to manually adjust these categories but that is just as tedious as doing it from scratch.
 
-![Example](https://user-images.githubusercontent.com/46355364/166657784-661daf46-e4f8-41d3-8d42-a506437f99ee.png)
+**I want to give you back the control to properly and efficiently categorize your personal finance with PersonalFinance**. Yes, this solution still requires some proper time investment as you will have to define each category but you will be able to fully understand why it categorized specific transactions. Once you have your categories defined, you can be sure that the model will categorise transactions how you defined them. This is because it is not a generic model that is trained on a large dataset of transactions from all over the world. It is trained on your own data, which means that it will be able to categorise transactions that are specific to you. This results in Morty's Place being correctly categorised as a Bakery.
 
-## Set-Up / Installation
-1. Copy the spreadsheet template you can find [here](
-https://docs.google.com/spreadsheets/d/1XequpKhDsbpCpThSxrI_4YIP9JacSd6XHVXL9uNMItw/edit?usp=sharing).
-2. Connect a Spreadsheet to gspread, follow "For Bots: Using Service Account" until step 6 from [this guide](
-https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account).
-3. Clone this repository.
-4. Run `pip install -e .` in this repository, this will install it as CLI tool.
-5. Configure `config.yaml` to your needs. By default this is set to:
-    ```yaml
-    spreadsheet_name: Finances
-    input_sheet: Input
-    bank_data_sheet: Bank Data
-    client_secret_file: client_secret.json
-    ```
-    If you use my template, these are already correct if you change the name of the spreadsheet to "Finances".
-6. Don't forget to add the "client_secret.json" file to the same folder.
-7. Download your transaction data as CSV (for example: *NLXXINGBXXXXXXXXXX_01-01-2011_02-07-2020.csv*)
-    - Currently the only working bank is [ING](https://www.ing.nl/). If you want to make it work with your bank,
-    please send me a file with the format your bank uses so I can include it as an option.
-8. Run **personal_finance** in your terminal and checkout the result.
+To assist in not needing to get **exact** matches, the package makes use of the [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) to determine how similar two strings are. This means that if you have a category called "Groceries" with the keyword "Supermarket" and a transaction comes in with the name "Rick's Super Market", it will still be categorised as "Groceries". There is a limited amount of Mumbo Jumbo going on here on purpose so that it still becomes logical why it is categorised as such.
+
+Once categorization is done, it creates a neat looking Excel file for you that you can fully customize yourself further. It is up to you how you wish to proceed. Perhaps continue in Python or expand on the Excel created. Note that the model will not overwrite Excel files but simple fill specific sheets so that you never have to start over. I believe that everyone has his custom needs in which no tool can fully provide whereas Excel gives you the freedom to expand how you'd like.
+
+Next to that, it is one thing to track your cash flows but without information about your investment portfolio it is only half the story. Therefore, this package also allows you to track your portfolio by accepting your portfolio transactions and doing (basic) analysis on the portfolio. Here, the assumption is that you are a somewhat passive investor simply looking to bundle your income streams together. If you invest actively, I am sure you know about other tools that are more suitable for you (e.g. I limit the amount of financial calulations to the most essential, for that please have a look at the [Finance Toolkit 🛠️](https://github.com/JerBouma/FinanceToolkit))
