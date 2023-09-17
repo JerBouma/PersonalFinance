@@ -3,6 +3,7 @@
 import pandas as pd
 import yaml
 
+
 def read_excel(location: str):
     """
     Read an Excel (.xlsx) or CSV (.csv) file into a Pandas DataFrame.
@@ -21,7 +22,7 @@ def read_excel(location: str):
     """
     if location.endswith(".xlsx"):
         return pd.read_excel(location)
-    elif location.endswith(".csv"):
+    if location.endswith(".csv"):
         return pd.read_csv(location)
 
     raise ValueError("File type not supported. Please use .xlsx or .csv")
@@ -47,12 +48,14 @@ def read_yaml_file(location: str):
         Exception: For any other general exceptions that may occur during file reading or parsing.
     """
     try:
-        with open(location, 'r') as yaml_file:
+        with open(location) as yaml_file:
             data = yaml.safe_load(yaml_file)
         return data
-    except FileNotFoundError:
-        print(f"The file '{location}' does not exist.")
-    except yaml.YAMLError as e:
-        print(f"Error parsing '{location}': {e}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    except FileNotFoundError as exc:
+        raise ValueError(f"The file '{location}' does not exist.") from exc
+    except yaml.YAMLError as exc:
+        raise ValueError(f"Error parsing '{location}': {exc}") from exc
+    except KeyError as exc:
+        raise ValueError(f"An error occurred: {exc}") from exc
+    except ValueError as exc:
+        raise ValueError(f"An error occurred: {exc}") from exc

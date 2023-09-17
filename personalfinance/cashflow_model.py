@@ -1,14 +1,15 @@
+"""Cashflow Module"""
+
 import os
-from tqdm import tqdm
-import pandas as pd
+
 import numpy as np
-
-from personal_finance import helpers
+import pandas as pd
 from fuzzywuzzy import fuzz
+from tqdm import tqdm
 
-import xlsxwriter
-from openpyxl.styles import Font, Alignment, PatternFill
+from personalfinance import helpers
 
+# pylint: disable=too-many-locals
 
 
 def read_cashflow_dataset(
@@ -19,7 +20,8 @@ def read_cashflow_dataset(
     description_columns: list[str],
     amount_column: list[str],
     cost_or_income_dict: dict,
-    decimal_seperator: str) -> tuple[pd.DataFrame, str, list[str], str, str | None, dict | None]:
+    decimal_seperator: str,
+) -> tuple[pd.DataFrame, list[str], list[str], list[str], str | None, dict | None]:
     """
     Read and preprocess a cash flow dataset from Excel files.
 
@@ -62,7 +64,7 @@ def read_cashflow_dataset(
     for file in excel_location:
         if file.split(".")[-1] not in ["xlsx", "csv"]:
             excel_location.remove(file)
-            
+
             for sub_file in os.listdir(file):
                 if sub_file.endswith(("xlsx", "csv")):
                     additional_files.append(f"{file}/{sub_file}")
@@ -74,11 +76,17 @@ def read_cashflow_dataset(
         if len(excel_location) > 1
         else excel_location
     ):
-        
         cash_flow_statement = helpers.read_excel(file)
         cash_flow_statement.columns = cash_flow_statement.columns.str.lower()
-        
-        cash_flow_statement, date_column, description_columns, amount_column, cost_or_income_column, cost_or_income_criteria = format_cash_flow_dataset(
+
+        (
+            cash_flow_statement,
+            date_column,
+            description_columns,
+            amount_column,
+            cost_or_income_column,
+            cost_or_income_criteria,
+        ) = format_cash_flow_dataset(
             dataset=cash_flow_statement,
             date_column=date_column,
             date_format=date_format,
@@ -87,42 +95,61 @@ def read_cashflow_dataset(
             cost_or_income_dict=cost_or_income_dict,
             decimal_seperator=decimal_seperator,
         )
-        
-        
+
         if cash_flow_statement.duplicated().any() and adjust_duplicates:
             print(f"Found duplicates in {file}. These will be added together.")
             duplicates = cash_flow_statement[cash_flow_statement.duplicated()]
-            originals = cash_flow_statement[cash_flow_statement.duplicated(keep='first')]
-                    
-            number_columns = duplicates.select_dtypes(np.number).columns.intersection(originals.select_dtypes(np.number).columns)
-            duplicates.loc[:, number_columns] = duplicates.loc[:, number_columns].add(originals[number_columns], fill_value=0)
-            
-            cash_flow_statement =  pd.concat([cash_flow_statement, duplicates]).drop_duplicates(keep=False)
-            
+            originals = cash_flow_statement[
+                cash_flow_statement.duplicated(keep="first")
+            ]
+
+            number_columns = duplicates.select_dtypes(np.number).columns.intersection(
+                originals.select_dtypes(np.number).columns
+            )
+            duplicates.loc[:, number_columns] = duplicates.loc[:, number_columns].add(
+                originals[number_columns], fill_value=0
+            )
+
+            cash_flow_statement = pd.concat(
+                [cash_flow_statement, duplicates]
+            ).drop_duplicates(keep=False)
+
         combined_cash_flow_dataset = pd.concat(
             [combined_cash_flow_dataset, cash_flow_statement]
         )
-        
+
     if combined_cash_flow_dataset.duplicated().any() and adjust_duplicates:
-        print("Found duplicates in the combination of datasets. This is usually due to overlapping periods. "
-            "The duplicates will be removed from the datasets to prevent counting the same transaction twice.")
+        print(
+            "Found duplicates in the combination of datasets. This is usually due to overlapping periods. "
+            "The duplicates will be removed from the datasets to prevent counting the same transaction twice."
+        )
         combined_cash_flow_dataset = combined_cash_flow_dataset.drop_duplicates()
-        
+
     combined_cash_flow_dataset.columns = combined_cash_flow_dataset.columns.str.lower()
     combined_cash_flow_dataset = combined_cash_flow_dataset.sort_index(ascending=False)
-    combined_cash_flow_dataset.index = combined_cash_flow_dataset.index.to_period(freq="D")
-    
-    return combined_cash_flow_dataset, date_column, description_columns, amount_column, cost_or_income_column, cost_or_income_criteria
+    combined_cash_flow_dataset.index = combined_cash_flow_dataset.index.to_period(
+        freq="D"
+    )
+
+    return (
+        combined_cash_flow_dataset,
+        date_column,
+        description_columns,
+        amount_column,
+        cost_or_income_column,
+        cost_or_income_criteria,
+    )
+
 
 def format_cash_flow_dataset(
     dataset: pd.DataFrame,
-    date_column: list,
+    date_column: list[str],
     date_format: str,
-    description_columns: list,
-    amount_column: list,
+    description_columns: list[str],
+    amount_column: list[str],
     cost_or_income_dict: dict | None = None,
-    decimal_seperator: str | None = None
-) -> tuple[pd.DataFrame, str, list, str, str | None, dict | None]:
+    decimal_seperator: str | None = None,
+) -> tuple[pd.DataFrame, list[str], list[str], list[str], str | None, dict]:
     """
     Format and preprocess a cash flow dataset.
 
@@ -166,73 +193,108 @@ def format_cash_flow_dataset(
     """
     date_column = [column.lower() for column in date_column]
     date_column_match = [column for column in date_column if column in dataset.columns]
-    
+
     if not date_column_match:
-        raise ValueError("No date columns found in the cash flow dataset. Please specify the columns in the configuration file.")
-    date_column = date_column_match[0]
-    
-    dataset = dataset.set_index(date_column)
-        
+        raise ValueError(
+            "No date columns found in the cash flow dataset. Please specify the columns in the configuration file."
+        )
+    date_column_first = date_column_match[0]
+
+    dataset = dataset.set_index(date_column_first)
+
     dataset.index = pd.to_datetime(dataset.index, format=date_format)
 
     description_columns = [column.lower() for column in description_columns]
-    description_columns_match = [column for column in description_columns if column in dataset.columns]
-    
+    description_columns_match = [
+        column for column in description_columns if column in dataset.columns
+    ]
+
     if not description_columns_match:
-        raise ValueError("No description columns found in the cash flow dataset. Please specify the columns in the configuration file.")
+        raise ValueError(
+            "No description columns found in the cash flow dataset. Please specify the columns in the configuration file."
+        )
     description_columns = description_columns_match
-        
+
     for column in description_columns:
         dataset[column] = dataset[column].astype("category")
-    
-    amount_column = [column.lower() for column in amount_column]
-    amount_column_match = [column for column in amount_column if column in dataset.columns]
-    
-    if not amount_column_match:
-        raise ValueError("No amount columns found in the cash flow dataset. Please specify the columns in the configuration file.")
-    amount_column = amount_column_match[0]
-        
-    if decimal_seperator == "," and isinstance(dataset[amount_column].iloc[0], str):
-        dataset[amount_column] = dataset[amount_column].str.replace(".", "")
-        dataset[amount_column] = dataset[amount_column].str.replace(",", ".")
-    if decimal_seperator == "." and isinstance(dataset[amount_column].iloc[0], str):
-        dataset[amount_column] = dataset[amount_column].str.replace(",", "")
 
-    dataset[amount_column] = dataset[amount_column].astype("float")
-    
-    cost_or_income_dict = {key.lower(): value for key, value in cost_or_income_dict.items()}
-    cost_or_income_column = [column.lower() for column in cost_or_income_dict.keys()]
-    cost_or_income_column_match = [column for column in cost_or_income_column if column in dataset.columns]
-    
-    if not cost_or_income_column_match and cost_or_income_column:
-        raise ValueError("No cost or income columns found in the cash flow dataset. Please specify "
-                            "the columns in the configuration file or keep this variable empty if not applicable.")
-    if not cost_or_income_column:
-        cost_or_income_column = None
-        cost_or_income_criteria = None
+    amount_column = [column.lower() for column in amount_column]
+    amount_column_match = [
+        column for column in amount_column if column in dataset.columns
+    ]
+
+    if not amount_column_match:
+        raise ValueError(
+            "No amount columns found in the cash flow dataset. Please specify the columns in the configuration file."
+        )
+    amount_column_first = amount_column_match[0]
+
+    if decimal_seperator == "," and isinstance(
+        dataset[amount_column_first].iloc[0], str
+    ):
+        dataset[amount_column_first] = dataset[amount_column_first].str.replace(".", "")
+        dataset[amount_column_first] = dataset[amount_column_first].str.replace(
+            ",", "."
+        )
+    if decimal_seperator == "." and isinstance(
+        dataset[amount_column_first].iloc[0], str
+    ):
+        dataset[amount_column_first] = dataset[amount_column_first].str.replace(",", "")
+
+    dataset[amount_column_first] = dataset[amount_column_first].astype("float")
+
+    if cost_or_income_dict:
+        cost_or_income_dict = {
+            key.lower(): value for key, value in cost_or_income_dict.items()
+        }
+        cost_or_income_column = [column.lower() for column in cost_or_income_dict]
+        cost_or_income_column_match = [
+            column for column in cost_or_income_column if column in dataset.columns
+        ]
+
+        if not cost_or_income_column_match and cost_or_income_column:
+            raise ValueError(
+                "No cost or income columns found in the cash flow dataset. Please specify "
+                "the columns in the configuration file or keep this variable empty if not applicable."
+            )
+    if cost_or_income_dict:
+        cost_or_income_first = cost_or_income_column_match[0]
+        cost_or_income_criteria = dict(
+            cost_or_income_dict[cost_or_income_column].items()
+        )
+
+        dataset[cost_or_income_column] = dataset[cost_or_income_column].astype(
+            "category"
+        )
     else:
-        cost_or_income_column =  cost_or_income_column_match[0]
-        cost_or_income_criteria =  {column: value for column, value in cost_or_income_dict[cost_or_income_column].items()}
-            
-        dataset[cost_or_income_column] = dataset[cost_or_income_column].astype("category")
-    
-    return dataset, date_column, description_columns, amount_column, cost_or_income_column, cost_or_income_criteria
+        cost_or_income_first = None
+        cost_or_income_criteria = {}
+
+    return (
+        dataset,
+        date_column,
+        description_columns,
+        amount_column,
+        cost_or_income_first,
+        cost_or_income_criteria,
+    )
+
 
 def apply_categorization(
     dataset: pd.DataFrame,
-    categorization: dict | None = None,
-    description_columns: list[str] | None = None,
-    categorization_threshold: int | None = None,
-    direct_match: bool | None = None) -> tuple[pd.DataFrame, dict[str, int]]:
+    categorization: dict,
+    description_columns: list[str] | None,
+    categorization_threshold: int,
+) -> tuple[pd.DataFrame, dict[str, int]]:
     """
     Apply categorization to transactions in a cash flow dataset based on provided rules.
 
     This function categorizes transactions in a cash flow dataset using a set of rules defined in the
     'categorization' parameter. It matches transaction descriptions with keywords and assigns categories
     accordingly. The categorized results are stored in a new 'category' column in the dataset.
-    
+
     The calculations are done as follows:
-    
+
         1. The function loops through each row in the dataset.
         2. It then loops through each category in the categorization rules.
         3. For each category, it looks at each defined description column and compares the description
@@ -244,7 +306,7 @@ def apply_categorization(
             category and assigns the category with the highest max match value to the transaction.
         6. If no category has a match value higher than the threshold, the transaction is assigned to
             the 'Other' category.
-            
+
     This is a time consuming process (even though it still is just 2-3 minutes) but it is done to ensure
     that when you have a description that says "Apple Bandit" and you have the keyword "Apple" in the
     "Groceries" categorization and "Apple Bandit" in the "Drinks" categorization, it will be assigned
@@ -272,61 +334,63 @@ def apply_categorization(
             columns are defined either in the configuration or explicitly.
     """
     if not description_columns:
-        print("No description columns found in the cash flow dataset. Please specify the columns in the configuration file. "
-                "This needs to be defined within the section 'general' under 'desciption_columns'.")
-    else:
-        categories = []
-        keyword_matches = []
-        certainty = []
-        total_matches = {}
-        
-        for _, row in tqdm(dataset.iterrows(), total=dataset.shape[0], desc="Categorizing Transactions"):
-            category_decision = "Other"
-            keyword_match = None
-            result = {}
+        raise ValueError(
+            "No description columns found in the cash flow dataset. Please specify the columns in "
+            "the configuration file. This needs to be defined within the section 'general' under "
+            "'desciption_columns'."
+        )
 
-            for category, keywords in categorization.items():
-                result[category] = []
+    categories = []
+    keyword_matches = []
+    certainty = []
+    total_matches = {}
 
-                for column in description_columns:
+    for _, row in tqdm(
+        dataset.iterrows(), total=dataset.shape[0], desc="Categorizing Transactions"
+    ):
+        category_decision = "Other"
+        keyword_match = None
+        result: dict[str, list[tuple[str, int]]] = {}
 
-                    lowered_description = row[column].lower()
-                    
-                    for keyword in keywords:
-                        if keyword not in total_matches:
-                            total_matches[keyword] = 0
-                            
-                        match = fuzz.partial_ratio(lowered_description, keyword.lower())
-                        total_matches[keyword] = match if match > total_matches[keyword] else total_matches[keyword]
-                        
-                        if match >= categorization_threshold:
-                            result[category].append((keyword, match))
-                    
-                    if direct_match:
-                        direct_match = [keyword for keyword in keywords if lowered_description == keyword.lower()]
-                    else:
-                        direct_match = False
+        for category, keywords in categorization.items():
+            result[category] = []
 
-            highest_value = 0
-            for key, values in result.items():
-                # This is done to ensure you have the best fit for the transaction. If you have a description
-                # that says "Apple Bandit" and you have the keyword "Apple" in the "Groceries" categorization
-                # and "Apple Bandit" in the "Drinks" categorization, it will be assigned to "Drinks" because
-                # the match value is higher. This would not be achieved if the first match that crosses the
-                # Threshold is reached (which would be "Groceries" in this case).
-                for keyword, value in values:
-                    if value > highest_value:
-                        keyword_match = keyword
-                        highest_value = value
-                        category_decision = key
+            for column in description_columns:
+                lowered_description = row[column].lower()
 
-            categories.append(category_decision)
-            keyword_matches.append(keyword_match)
-            certainty.append(highest_value / 100)
-            
-        dataset["category"] = categories
-        dataset["keyword"] = keyword_matches
-        dataset["certainty"] = certainty
-        
+                for keyword in keywords:
+                    if keyword not in total_matches:
+                        total_matches[keyword] = 0
+
+                    match = fuzz.partial_ratio(lowered_description, keyword.lower())
+                    total_matches[keyword] = (
+                        match
+                        if match > total_matches[keyword]
+                        else total_matches[keyword]
+                    )
+
+                    if match >= categorization_threshold:
+                        result[category].append((keyword, match))
+
+        highest_value = 0
+        for key, values in result.items():
+            # This is done to ensure you have the best fit for the transaction. If you have a description
+            # that says "Apple Bandit" and you have the keyword "Apple" in the "Groceries" categorization
+            # and "Apple Bandit" in the "Drinks" categorization, it will be assigned to "Drinks" because
+            # the match value is higher. This would not be achieved if the first match that crosses the
+            # Threshold is reached (which would be "Groceries" in this case).
+            for keyword, value in values:
+                if value > highest_value:
+                    keyword_match = keyword
+                    highest_value = value
+                    category_decision = key
+
+        categories.append(category_decision)
+        keyword_matches.append(keyword_match)
+        certainty.append(highest_value / 100)
+
+    dataset["category"] = categories
+    dataset["keyword"] = keyword_matches
+    dataset["certainty"] = certainty
+
     return dataset, total_matches
-
