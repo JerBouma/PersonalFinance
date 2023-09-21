@@ -86,7 +86,7 @@ def read_cashflow_dataset(
             amount_column,
             cost_or_income_column,
             cost_or_income_criteria,
-        ) = format_cash_flow_dataset(
+        ) = format_cash_flow_dataset(  # type: ignore
             dataset=cash_flow_statement,
             date_column=date_column,
             date_format=date_format,
@@ -149,7 +149,7 @@ def format_cash_flow_dataset(
     amount_column: list[str],
     cost_or_income_dict: dict | None = None,
     decimal_seperator: str | None = None,
-) -> tuple[pd.DataFrame, list[str], list[str], list[str], str | None, dict]:
+) -> tuple[pd.DataFrame, str, list[str], str, str | None, dict]:
     """
     Format and preprocess a cash flow dataset.
 
@@ -260,21 +260,19 @@ def format_cash_flow_dataset(
     if cost_or_income_dict:
         cost_or_income_first = cost_or_income_column_match[0]
         cost_or_income_criteria = dict(
-            cost_or_income_dict[cost_or_income_column].items()
+            cost_or_income_dict[cost_or_income_first].items()
         )
 
-        dataset[cost_or_income_column] = dataset[cost_or_income_column].astype(
-            "category"
-        )
+        dataset[cost_or_income_first] = dataset[cost_or_income_first].astype("category")
     else:
         cost_or_income_first = None
         cost_or_income_criteria = {}
 
     return (
         dataset,
-        date_column,
+        date_column_first,
         description_columns,
-        amount_column,
+        amount_column_first,
         cost_or_income_first,
         cost_or_income_criteria,
     )

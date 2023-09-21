@@ -2,8 +2,8 @@
 cashflow.yaml
 *.xlsx
 *.pickle
-cashflow/*.csv
-cashflow/*.xlsx
+cashflows/*.csv
+cashflows/*.xlsx
 portfolio/*.csv
 portfolio/*.xlsx
 

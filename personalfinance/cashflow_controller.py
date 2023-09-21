@@ -55,9 +55,11 @@ class Cashflow:
         self._yearly_overview: pd.DataFrame = pd.DataFrame()
         self._quarterly_overview: pd.DataFrame = pd.DataFrame()
         self._monthly_overview: pd.DataFrame = pd.DataFrame()
+        self._weekly_overview: pd.DataFrame = pd.DataFrame()
         self._yearly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
         self._quarterly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
         self._monthly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
+        self._weekly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
         self._highest_match_percentage: pd.Series = pd.Series()
         self._cost_or_income_criteria: dict = {}
 
@@ -118,6 +120,7 @@ class Cashflow:
         self._yearly_overview = self.create_period_overviews(period="year")
         self._quarterly_overview = self.create_period_overviews(period="quarter")
         self._monthly_overview = self.create_period_overviews(period="month")
+        self._weekly_overview = self.create_period_overviews(period="week")
 
         return self._cash_flow_dataset
 
@@ -440,10 +443,14 @@ class Cashflow:
         self._monthly_cash_flow_dataset = self._cash_flow_dataset.groupby(
             pd.Grouper(freq="M")
         ).apply(lambda x: x)
+        self._weekly_cash_flow_dataset = self._cash_flow_dataset.groupby(
+            pd.Grouper(freq="W")
+        ).apply(lambda x: x)
 
         self._yearly_cash_flow_dataset.index.names = ["year", "date"]
         self._quarterly_cash_flow_dataset.index.names = ["quarter", "date"]
         self._monthly_cash_flow_dataset.index.names = ["month", "date"]
+        self._weekly_cash_flow_dataset.index.names = ["week", "date"]
 
     def create_period_overviews(self, period: str) -> pd.DataFrame:
         """
@@ -485,9 +492,11 @@ class Cashflow:
             period_dataset = self._quarterly_cash_flow_dataset
         elif period == "month":
             period_dataset = self._monthly_cash_flow_dataset
+        elif period == "week":
+            period_dataset = self._weekly_cash_flow_dataset
         else:
             raise ValueError(
-                "Period not supported. Please use 'year', 'quarter' or 'month'."
+                "Period not supported. Please use 'year', 'quarter', 'month' or 'week."
             )
 
         period_values = period_dataset.index.get_level_values(period).unique()
@@ -514,7 +523,9 @@ class Cashflow:
 
         return period_cash_flows
 
-    def create_excel_template(self, excel_file_name: str | None):
+    def create_excel_template(
+        self, excel_file_name: str | None = None, currency: str | None = None
+    ):
         """
         Create an Excel template file with specified data sheets.
 
@@ -541,6 +552,12 @@ class Cashflow:
             To create an Excel template with the default name from the configuration:
             >>> my_instance.create_excel_template()
         """
+        excel_file_name = (
+            excel_file_name if excel_file_name else self._cfg["excel"]["file_name"]
+        )
+
+        currency = currency if currency else self._cfg["excel"]["currency"]
+
         writer = pd.ExcelWriter(
             excel_file_name,
             engine="xlsxwriter",
@@ -548,19 +565,43 @@ class Cashflow:
             datetime_format="yyyy-mm-dd",
         )
 
-        if not self._monthly_overview.empty:
+        overviews = [overview.lower() for overview in self._cfg["excel"]["overviews"]]
+
+        if "weekly" in overviews:
             excel_model.create_overview_excel_report(
-                writer, dataset=self._monthly_overview, sheet_name="Monthly Overview"
+                writer,
+                dataset=self._weekly_overview,
+                sheet_name="Weekly Overview",
+                currency=currency,
             )
-        if not self._quarterly_overview.empty:
+        if "monthly" in overviews:
+            excel_model.create_overview_excel_report(
+                writer,
+                dataset=self._monthly_overview,
+                sheet_name="Monthly Overview",
+                currency=currency,
+            )
+        if "quarterly" in overviews:
             excel_model.create_overview_excel_report(
                 writer,
                 dataset=self._quarterly_overview,
                 sheet_name="Quarterly Overview",
+                currency=currency,
             )
-        if not self._yearly_overview.empty:
+        if "yearly" in overviews:
             excel_model.create_overview_excel_report(
-                writer, dataset=self._yearly_overview, sheet_name="Yearly Overview"
+                writer,
+                dataset=self._yearly_overview,
+                sheet_name="Yearly Overview",
+                currency=currency,
+            )
+
+        if not self._cash_flow_dataset.empty:
+            excel_model.create_transactions_excel_report(
+                writer,
+                dataset=self._cash_flow_dataset,
+                sheet_name="Transactions",
+                currency=currency,
             )
 
         writer.close()
