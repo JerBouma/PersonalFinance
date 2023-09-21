@@ -4,6 +4,8 @@ cashflow.yaml
 *.pickle
 cashflow/*.csv
 cashflow/*.xlsx
+portfolio/*.csv
+portfolio/*.xlsx
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
