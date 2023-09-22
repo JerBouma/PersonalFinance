@@ -1,17 +1,24 @@
 # Personal Finance specific
-cashflow.yaml
 *.xlsx
 *.pickle
-cashflows/*.csv
-cashflows/*.xlsx
+*.ipynb
+configurations/*.yaml
+!configurations/cashflow.yaml
+!configurations/portfolio.yaml
 portfolio/*.csv
 portfolio/*.xlsx
+cashflows/*.csv
+cashflows/*.xlsx
+!examples
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 .DS_Store
+.idea
+.vscode
 
 # C extensions
 *.so

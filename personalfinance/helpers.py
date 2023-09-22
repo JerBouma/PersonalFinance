@@ -3,6 +3,20 @@
 import pandas as pd
 import yaml
 
+# pylint: disable=too-few-public-methods
+
+
+class Style:
+    """ANSI escape sequences for styling text in the terminal."""
+
+    RED = "\033[91m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    RESET = "\033[0m"
+
 
 def read_excel(location: str):
     """

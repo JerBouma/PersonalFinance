@@ -1,5 +1,6 @@
 """Cashflow Module"""
 
+
 import pandas as pd
 
 from personalfinance import cashflow_model, excel_model, helpers
@@ -104,12 +105,17 @@ class Cashflow:
             running this function.
             - The resulting cash flow dataset can be accessed via the 'self._cash_flow_dataset' attribute.
         """
+        print(
+            f"{helpers.Style.BOLD}Reading the Cash Flow Dataset(s){helpers.Style.RESET}"
+        )
         self.read_cashflow_dataset()
 
         if self._custom_dataset.empty:
             if self._cfg["general"]["cost_or_income_columns"]:
+                print("Applying the Cost or Income Indicator")
                 self.apply_cost_or_income_indicator()
 
+            print(f"{helpers.Style.BOLD}Applying Categorization{helpers.Style.RESET}")
             self.apply_categorization()
         else:
             print("Categorized dataset provided. Skipping categorization.")
@@ -122,7 +128,14 @@ class Cashflow:
         self._monthly_overview = self.create_period_overviews(period="month")
         self._weekly_overview = self.create_period_overviews(period="week")
 
-        return self._cash_flow_dataset
+        if self._cfg["excel"]["file_name"]:
+            print(
+                f"{helpers.Style.BOLD}Creating the Excel Template{helpers.Style.RESET}"
+            )
+            self.create_excel_template()
+            print(
+                f"Done! Find the Excel Template here: {self._cfg['excel']['file_name']}"
+            )
 
     def read_cashflow_dataset(
         self,
@@ -270,7 +283,6 @@ class Cashflow:
         categorization: dict[str, list] | None = None,
         description_columns: list[str] | None = None,
         categorization_threshold: int | None = None,
-        direct_match: bool | None = None,
     ) -> None:
         """
         Apply categorization to transactions in the cash flow dataset based on provided rules.
@@ -316,9 +328,6 @@ class Cashflow:
             if categorization_threshold
             else self._cfg["general"]["categorization_threshold"]
         )
-        direct_match = (
-            direct_match if direct_match else self._cfg["general"]["direct_match"]
-        )
 
         self._cash_flow_dataset, total_matches = cashflow_model.apply_categorization(
             dataset=self._cash_flow_dataset,
@@ -340,15 +349,20 @@ class Cashflow:
 
         if (self._highest_match_percentage < categorization_threshold).any():
             print(
-                "The following keywords have not led to any category matches. Please consider "
-                "removing or updating these keyword to keep things compact:"
+                "The following keywords have not led to any category matches "
+                f"(threshold is {categorization_threshold:.2f}%). Please consider "
+                "removing or updating these keywords to keep things compact:"
             )
             below_threshold = self._highest_match_percentage[
                 self._highest_match_percentage < categorization_threshold
             ].sort_values()
 
-            for keyword, match_percentage in below_threshold.items():
-                print(f"{keyword}: {match_percentage:.2f}%")
+            combination = [
+                f"{keyword} ({percentage:.2f}%)"
+                for keyword, percentage in below_threshold.items()
+            ]
+
+            print(", ".join(combination))
 
     def apply_cost_or_income_indicator(
         self,
@@ -500,7 +514,7 @@ class Cashflow:
             )
 
         period_values = period_dataset.index.get_level_values(period).unique()
-        categories = self._cfg["categories"].keys()
+        categories = list(self._cfg["categories"].keys()) + ["Other"]
         period_cash_flows = pd.DataFrame(columns=period_values, index=categories)
 
         category_exclusions = self._cfg["general"]["category_exclusions"]
@@ -524,7 +538,10 @@ class Cashflow:
         return period_cash_flows
 
     def create_excel_template(
-        self, excel_file_name: str | None = None, currency: str | None = None
+        self,
+        excel_file_name: str | None = None,
+        currency: str | None = None,
+        overwrite: bool | None = None,
     ):
         """
         Create an Excel template file with specified data sheets.
@@ -558,6 +575,8 @@ class Cashflow:
 
         currency = currency if currency else self._cfg["excel"]["currency"]
 
+        overwrite = overwrite if overwrite else self._cfg["excel"]["overwrite"]
+
         writer = pd.ExcelWriter(
             excel_file_name,
             engine="xlsxwriter",
@@ -566,6 +585,14 @@ class Cashflow:
         )
 
         overviews = [overview.lower() for overview in self._cfg["excel"]["overviews"]]
+
+        if "daily" in overviews:
+            excel_model.create_transactions_excel_report(
+                writer,
+                dataset=self._cash_flow_dataset,
+                sheet_name="Daily Overview",
+                currency=currency,
+            )
 
         if "weekly" in overviews:
             excel_model.create_overview_excel_report(
@@ -593,14 +620,6 @@ class Cashflow:
                 writer,
                 dataset=self._yearly_overview,
                 sheet_name="Yearly Overview",
-                currency=currency,
-            )
-
-        if not self._cash_flow_dataset.empty:
-            excel_model.create_transactions_excel_report(
-                writer,
-                dataset=self._cash_flow_dataset,
-                sheet_name="Transactions",
                 currency=currency,
             )
 

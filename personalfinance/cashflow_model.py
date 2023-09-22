@@ -21,7 +21,7 @@ def read_cashflow_dataset(
     amount_column: list[str],
     cost_or_income_dict: dict,
     decimal_seperator: str,
-) -> tuple[pd.DataFrame, list[str], list[str], list[str], str | None, dict | None]:
+) -> tuple[pd.DataFrame, str, list[str], str, str | None, dict | None]:
     """
     Read and preprocess a cash flow dataset from Excel files.
 
@@ -61,6 +61,8 @@ def read_cashflow_dataset(
     """
     combined_cash_flow_dataset = pd.DataFrame()
     additional_files = []
+    original_excel_location = excel_location.copy()
+
     for file in excel_location:
         if file.split(".")[-1] not in ["xlsx", "csv"]:
             excel_location.remove(file)
@@ -81,11 +83,11 @@ def read_cashflow_dataset(
 
         (
             cash_flow_statement,
-            date_column,
-            description_columns,
-            amount_column,
-            cost_or_income_column,
-            cost_or_income_criteria,
+            selected_date_column,
+            selected_description_columns,
+            selected_amount_column,
+            selected_cost_or_income_column,
+            selected_cost_or_income_criteria,
         ) = format_cash_flow_dataset(  # type: ignore
             dataset=cash_flow_statement,
             date_column=date_column,
@@ -97,7 +99,7 @@ def read_cashflow_dataset(
         )
 
         if cash_flow_statement.duplicated().any() and adjust_duplicates:
-            print(f"Found duplicates in {file}. These will be added together.")
+            print(f"Found duplicates in {file} These will be added together.")
             duplicates = cash_flow_statement[cash_flow_statement.duplicated()]
             originals = cash_flow_statement[
                 cash_flow_statement.duplicated(keep="first")
@@ -115,15 +117,29 @@ def read_cashflow_dataset(
             ).drop_duplicates(keep=False)
 
         combined_cash_flow_dataset = pd.concat(
-            [combined_cash_flow_dataset, cash_flow_statement]
+            [combined_cash_flow_dataset, cash_flow_statement], axis=0
         )
 
     if combined_cash_flow_dataset.duplicated().any() and adjust_duplicates:
-        print(
-            "Found duplicates in the combination of datasets. This is usually due to overlapping periods. "
-            "The duplicates will be removed from the datasets to prevent counting the same transaction twice."
+        if adjust_duplicates:
+            print(
+                "Found duplicates in the combination of datasets. This is usually due to overlapping periods. "
+                "The duplicates will be removed from the datasets to prevent counting the same transaction twice."
+            )
+            combined_cash_flow_dataset = combined_cash_flow_dataset.drop_duplicates()
+        else:
+            print(
+                "Found duplicates in the combination of datasets. This is usually due to overlapping periods. "
+                "Given that adjust_duplicates is set to False these won't be removed. This may result in double "
+                "counting transactions."
+            )
+
+    if combined_cash_flow_dataset.empty:
+        raise ValueError(
+            f"No valid Excel files found within the location ({original_excel_location}).\n"
+            "Ensure that there are .xlsx or .csv files in the location. Read more about how to do this"
+            "in the documentation as found here: https://github.com/JerBouma/PersonalFinance"
         )
-        combined_cash_flow_dataset = combined_cash_flow_dataset.drop_duplicates()
 
     combined_cash_flow_dataset.columns = combined_cash_flow_dataset.columns.str.lower()
     combined_cash_flow_dataset = combined_cash_flow_dataset.sort_index(ascending=False)
@@ -133,11 +149,11 @@ def read_cashflow_dataset(
 
     return (
         combined_cash_flow_dataset,
-        date_column,
-        description_columns,
-        amount_column,
-        cost_or_income_column,
-        cost_or_income_criteria,
+        selected_date_column,
+        selected_description_columns,
+        selected_amount_column,
+        selected_cost_or_income_column,
+        selected_cost_or_income_criteria,
     )
 
 
@@ -202,7 +218,8 @@ def format_cash_flow_dataset(
 
     dataset = dataset.set_index(date_column_first)
 
-    dataset.index = pd.to_datetime(dataset.index, format=date_format)
+    if not isinstance(dataset.index, pd.DatetimeIndex):
+        dataset.index = pd.to_datetime(dataset.index, format=date_format)
 
     description_columns = [column.lower() for column in description_columns]
     description_columns_match = [
@@ -354,6 +371,10 @@ def apply_categorization(
             result[category] = []
 
             for column in description_columns:
+                if row[column] != row[column]:
+                    # In case the data is NaN
+                    continue
+
                 lowered_description = row[column].lower()
 
                 for keyword in keywords:
