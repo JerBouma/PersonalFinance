@@ -9,7 +9,7 @@ portfolio/*.csv
 portfolio/*.xlsx
 cashflows/*.csv
 cashflows/*.xlsx
-!examples
+!examples/
 
 
 # Byte-compiled / optimized / DLL files
