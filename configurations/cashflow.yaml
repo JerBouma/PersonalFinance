@@ -1,4 +1,4 @@
-# Cash Flow Configuration for PersonalFinance by Jeroen Bouma (JerBouma)
+# Cash Flow Configuration for FinancePortfolio by Jeroen Bouma (JerBouma)
 # With this configuration, you are able to get a complete overview of 
 # your finances with categorized transactions.
 ---
@@ -8,13 +8,18 @@ general:
   # You can specify a folder (all xlsx and csv in the folder) or point
   # to a specific file of your choosing
   file_location: cashflows
+
   # These are the columns that represent dates. It will pick the first
   # column it finds in the list and it is fine if the column isn't in
   # the dataset
   date_columns:
     - Datum
     - Date
+
+  # The Date format to use. This is dependent on how the date is formatted
+  # in the cash flow dataset
   date_format: "%Y-%m-%d"
+
   # These are the columns that represent the description and are used
   # to determine the category of the transaction. It will look into
   # all columns it can find that match with this list
@@ -24,18 +29,22 @@ general:
     - Naam / Omschrijving
     - Mededelingen
     - Mutatiesoort
+
   # These columns represent the amount of money that is being spent
   # or is being received. It will pick the first column it finds.
   amount_columns:
     - Value
     - Bedrag (EUR)
+
   # This defines the decimal seperator if applicable. This is only
   # relevant if the Amount column is formatted as a string.
   decimal_separator: ','
+
   # These are optional columns that can be used to determine whether
   # the transaction is negative or positive. This is only relevant
   # if the numbers are for example all positive. The logic here is
   # as follows: COLUMN: COLUMN_VALUE: MULTIPLIER. Disabled by default.
+  # remove the '#' symbols to enable.
   cost_or_income_columns:
     # Plus Minus:
     #   Minus: -1
@@ -44,10 +53,12 @@ general:
   # This is the threshold for the categorization algorithm which is
   # Levenshtein Distance. The higher, the more strict the algorithm
   categorization_threshold: 90
+
   # Whether to automatically group duplicates within the same file and
   # remove duplicates between files. This is useful if you have multiple
   # files that have overlapping periods
   adjust_duplicates: true
+
   # Within this variable some categories can be excluded from the total
   # overview. These are usually categories that are just moving money
   # around instead of being actual income or expenses. The columns
@@ -56,15 +67,19 @@ general:
     - Exclusions
 
 excel:
+  # The name of the file to write to.
   file_name: Cash Flow Overview.xlsx
+
   # Whether to overwrite the file if it already exists
   # If set to false, it will create a new file. If set to true,
   # it will fill the existing file
   overwrite: false
+
   # Define the currency in which the numbers need to be denoted,
   # if None specified, it will make not alterations to the numbers
   # currency can be anything that Excel supports (e.g. € or $)
   currency: €
+
   # Define for what periods you wish to see an overview, can be
   # Daily, Weekly, Monthly, Quarterly and/or Yearly.
   overviews:
