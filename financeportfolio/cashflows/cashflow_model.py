@@ -7,7 +7,7 @@ import pandas as pd
 from fuzzywuzzy import fuzz
 from tqdm import tqdm
 
-from personalfinance import helpers
+from financeportfolio import helpers
 
 # pylint: disable=too-many-locals
 

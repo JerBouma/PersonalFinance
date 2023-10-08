@@ -3,7 +3,8 @@
 
 import pandas as pd
 
-from personalfinance import cashflow_model, excel_model, helpers
+from financeportfolio import helpers
+from financeportfolio.cashflows import cashflow_model, excel_model
 
 # pylint: disable=too-many-instance-attributes,abstract-class-instantiated
 
