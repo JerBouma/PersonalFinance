@@ -7,7 +7,9 @@
 
 Tracking your investment portfolio and personal finances can be tedious. It either requires proprietary software to be used that often have limited features until you pay for a subscription or/and it requires a great amount of manual input just to get the overview you are looking for. And even once you have this overview, it is often not in the format you desire, does not apply the categorization as you wish or is simply not accurate in the first place.
 
-**I want to give you back the control to properly and efficiently track your finances with the FinancePortfolio**. Through the usage of configuration files, it becomes possible to connect multiple brokers as you desire and have the FinancePortfolio do the heavy lifting for you. It will automatically obtain historical data for all instruments in your portfolio, calculate the returns, benchmark returns, alpha and weight of each instrument and (optionally) provide you with a neat looking Excel file that you can further customize yourself. It is up to you how you wish to proceed. Perhaps continue in Python or expand on the Excel created. Next to that, it also allows you to track your personal finances by categorizing your transactions as you desire allowing you to be in full control of your finances.
+**I want to give you back the control to properly and efficiently track your finances with the FinancePortfolio**. Through the usage of configuration files, it becomes possible to connect multiple brokers as you desire and have the FinancePortfolio do the heavy lifting for you. It will automatically obtain historical data for all instruments in your portfolio, calculate the returns, benchmark returns, alpha and weight of each instrument and (optionally) provide you with a neat looking Excel file that you can further customize yourself.
+
+**It has the ability to send over your assets and portfolio to the [Finance Toolkit 🛠️](https://github.com/JerBouma/FinanceToolkit) automatically which allows the calculation of 130+ ratios, technicals, performance and risk measurements directly onto your portfolio. See [here](#finance-toolkit-support).**
 
 By doing most of these things through Python and Excel, you have the complete freedom to decide what to do with the output. For example, you can use it to create your own personalized dashboards via any programming language or application such as Excel, PowerBI, Tableau, etc. **I don't want to bore you with custom dashboards that I tailored to myself just so that you can come to the conclusion that it isn't a perfect fit for you.**
 
@@ -16,7 +18,6 @@ By doing most of these things through Python and Excel, you have the complete fr
 - [Installation](#installation)
 - [Analyzing your Investment Portfolio](#analyzing-your-investment-portfolio)
 - [Tracking your Personal Finances](#tracking-your-personal-finances)
-
 
 # Installation
 
@@ -28,7 +29,7 @@ To install the FinancePortfolio it simply requires the following:
 pip install financeportfolio -U
 ```
 
-Then for **Investment Portfolio** features within Python use:
+Then to use the features within Python use:
 
 ```python
 from financeportfolio import Portfolio
