@@ -1,5 +1,6 @@
 """Portfolio Module"""
 
+
 import pandas as pd
 from financetoolkit import Toolkit
 
@@ -36,8 +37,9 @@ class Portfolio:
 
     def __init__(
         self,
-        configuration_file: str,
+        configuration_file: str | None = None,
         portfolio_dataset: pd.DataFrame = pd.DataFrame(),
+        example: bool = False,
     ):
         """
         Initialize a Cashflow instance with the provided configuration file.
@@ -52,7 +54,26 @@ class Portfolio:
             ValueError: If the provided configuration file does not have a '.yaml' extension.
                 Only '.yaml' configuration files are supported.
         """
-        self._configuration_file = configuration_file
+        if example:
+            configuration_file = helpers.download_yaml_configuration(
+                portfolio=True, example=True
+            )
+            helpers.download_example_datasets(portfolio=True)
+            print(
+                f"Creating new Portfolio Configuration file at {configuration_file} and "
+                "downloading example datasets.\nRunning the Portfolio class with this example "
+                "dataset which illustrates the functionality of the Portfolio class."
+            )
+        elif configuration_file is None:
+            configuration_file = helpers.download_yaml_configuration(
+                portfolio=True, example=False
+            )
+            print(
+                f"Creating new Portfolio file at {configuration_file}. Please provide this file "
+                "path to the Portfolio class to prevent overwriting the existing file."
+            )
+
+        self._configuration_file = str(configuration_file)
         self._custom_dataset = portfolio_dataset
         self._yearly_overview: pd.DataFrame = pd.DataFrame()
         self._quarterly_overview: pd.DataFrame = pd.DataFrame()
@@ -94,6 +115,7 @@ class Portfolio:
         self._transactions_overview: pd.DataFrame = pd.DataFrame()
 
         # Finance Toolkit Initialization
+        self._tickers: list | None = None
         self._toolkit: Toolkit | None = None
         self._benchmark_toolkit: Toolkit | None = None
         self._currency_toolkit: Toolkit | None = None
@@ -107,15 +129,138 @@ class Portfolio:
         else:
             raise ValueError("File type not supported. Please use .yaml")
 
-        # Column Names
-        self._date_column: str = self._cfg["general"]["date_columns"]
-        self._name_column: str = self._cfg["general"]["name_columns"]
-        self._ticker_column: str = self._cfg["general"]["ticker_columns"]
-        self._price_column: str = self._cfg["general"]["price_columns"]
-        self._volume_column: str = self._cfg["general"]["volume_columns"]
-        self._costs_column: str = self._cfg["general"]["costs_columns"]
+        if (
+            self._cfg["general"]["file_location"] == "REPLACE_ME"
+            and self._custom_dataset.empty
+        ):
+            print(
+                f"{helpers.Style.BOLD}Please provide a file location in the configuration file (change "
+                f"'REPLACE_ME' within the general section) or provide a custom dataset.{helpers.Style.RESET}"
+                "\nSee https://github.com/JerBouma/FinancePortfolio for instructions"
+            )
+        else:
+            # Column Names
+            self._date_column: str = self._cfg["general"]["date_columns"]
+            self._name_column: str = self._cfg["general"]["name_columns"]
+            self._ticker_column: str = self._cfg["general"]["ticker_columns"]
+            self._price_column: str = self._cfg["general"]["price_columns"]
+            self._volume_column: str = self._cfg["general"]["volume_columns"]
+            self._costs_column: str = self._cfg["general"]["costs_columns"]
 
-        self.read_portfolio_dataset()
+            self.read_portfolio_dataset()
+
+    def to_toolkit(
+        self,
+        api_key: str | None = None,
+        quarterly: bool = False,
+        custom_ratios: dict | None = None,
+        rounding: int = 4,
+        remove_invalid_tickers: bool = False,
+        sleep_timer: bool = False,
+        progress_bar: bool = True,
+    ) -> Toolkit:
+        """
+        Converts the Portfolio to a Finance Toolkit object.
+
+        This method allows you to convert your Portfolio to a Finance Toolkit object,
+        giving access to 30+ years of fundamental and historical data, 130+ financial
+        metrics and much more. It intentilligently understands the assets you have
+        purchased and generated a "Portfolio" column automatically which is based off
+        your portfolio weights and the assets you have purchased. This allows you to
+        easily calculate portfolio metrics such as the Sharpe Ratio, Sortino Ratio,
+        Treynor Ratio, Value at Risk and many more that would fit precisely to your
+        portfolio.
+
+        Args:
+            api_key (str, optional):
+                Your API key for access to additional data. If not provided, only historical
+                data and indicators are available.
+            start_date (str, optional):
+                The start date for historical data retrieval. If not provided, it defaults
+                to the earliest available date.
+            end_date (str, optional):
+                The end date for historical data retrieval. If not provided, it defaults to
+                the current date.
+            quarterly (bool, optional):
+                Set to True to retrieve quarterly data. Defaults to False.
+            risk_free_rate (str, optional):
+                The risk-free rate used for calculations. Defaults to "10y".
+            benchmark_ticker (str, optional):
+                The benchmark ticker symbol. Defaults to "^GSPC".
+            custom_ratios (dict, optional):
+                Custom ratios to calculate. Should be a dictionary of ratio names and formulas.
+            rounding (int, optional):
+                The number of decimal places to round data. Defaults to 4.
+            remove_invalid_tickers (bool, optional):
+                Remove invalid tickers from the toolkit. Defaults to True.
+            sleep_timer (bool, optional):
+                Enable a sleep timer to avoid rate limiting. Defaults to False.
+            progress_bar (bool, optional):
+                Show a progress bar during data retrieval. Defaults to True.
+
+        Returns:
+            Toolkit:
+                A Finance Toolkit object.
+        """
+        if api_key is None:
+            print(
+                "The parameter api_key is not set. Therefore, only historical data and "
+                "indicators are available. Consider obtaining a key with the following link: "
+                "https://intelligence.financialmodelingprep.com/pricing-plans?couponCode=jeroen"
+                "\nThe free plan has a limit of 5 years fundamental data and has no quarterly data. "
+                "You can get 15% off by using the above affiliate link to get access to 30+ years "
+                "of (quarterly) data which also supports the project."
+            )
+
+        if self._daily_historical_data.empty:
+            self.collect_historical_data()
+        if self._daily_benchmark_data.empty:
+            self.collect_benchmark_historical_data()
+        if self._positions_overview.empty:
+            self.get_positions_overview()
+
+        symbols = list(self._tickers) + ["Portfolio"]  # type: ignore
+
+        historical_columns = self._daily_historical_data.columns.get_level_values(
+            0
+        ).unique()
+
+        benchmark_ticker = self._cfg["general"]["benchmark_ticker"]
+        benchmark_data = self._daily_benchmark_data.xs(
+            benchmark_ticker, axis=1, level=1
+        )
+
+        for column in historical_columns:
+            self._daily_historical_data[column, "Benchmark"] = benchmark_data[column]
+            self._daily_historical_data[column, "Portfolio"] = (
+                self._positions_overview["Current Weight"]
+                .mul(self._daily_historical_data[column], axis=1)
+                .sum(axis=1)
+            )
+
+        historical = (
+            self._daily_historical_data.sort_index(axis=1)
+            .reindex(historical_columns, axis=1, level=0)
+            .reindex(list(self._tickers) + ["Portfolio", "Benchmark"], axis=1, level=1)  # type: ignore
+        )
+
+        historical = historical.round(rounding)
+
+        toolkit = Toolkit(
+            tickers=symbols,
+            api_key=api_key,
+            historical=historical,
+            start_date=self._start_date,
+            quarterly=quarterly,
+            benchmark_ticker=benchmark_ticker,
+            custom_ratios=custom_ratios,
+            rounding=rounding,
+            remove_invalid_tickers=remove_invalid_tickers,
+            sleep_timer=sleep_timer,
+            progress_bar=progress_bar,
+        )
+
+        return toolkit
 
     def read_portfolio_dataset(
         self,
@@ -493,9 +638,9 @@ class Portfolio:
 
         # This is used in case ISIN codes are provided and therefore ISIN codes need to
         # be matched to the corresponding tickers
-        self._ticker_combinations = dict(zip(self._toolkit._tickers, self._tickers))
+        self._ticker_combinations = dict(zip(self._toolkit._tickers, self._tickers))  # type: ignore
         self._original_ticker_combinations = dict(
-            zip(self._tickers, self._original_tickers)
+            zip(self._tickers, self._original_tickers)  # type: ignore
         )
 
         self._daily_historical_data = self._toolkit.get_historical_data(period="daily")
@@ -610,12 +755,20 @@ class Portfolio:
                     f"Failed to collect benchmark historical data due to {error}"
                 ) from error
 
+        if self._transactions_overview.empty:
+            try:
+                self.get_transactions_overview()
+            except ValueError as error:
+                raise ValueError(
+                    f"Failed to get transactions overview due to {error}"
+                ) from error
+
         if self._positions_overview.empty:
             try:
                 self._positions_overview = portfolio_model.create_positions_overview(
                     portfolio_tickers=self._tickers,
                     period_dates=self._daily_historical_data.index.get_level_values(0),
-                    portfolio_dataset=self._portfolio_dataset,
+                    portfolio_dataset=self._transactions_overview,
                     historical_prices=self._daily_historical_data,
                 )
             except ValueError as error:

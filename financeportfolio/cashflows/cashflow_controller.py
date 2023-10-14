@@ -35,8 +35,9 @@ class Cashflow:
 
     def __init__(
         self,
-        configuration_file: str,
+        configuration_file: str | None = None,
         custom_dataset: pd.DataFrame = pd.DataFrame(),
+        example: bool = False,
     ):
         """
         Initialize a Cashflow instance with the provided configuration file.
@@ -51,7 +52,26 @@ class Cashflow:
             ValueError: If the provided configuration file does not have a '.yaml' extension.
                 Only '.yaml' configuration files are supported.
         """
-        self._configuration_file = configuration_file
+        if example:
+            configuration_file = helpers.download_yaml_configuration(
+                portfolio=False, example=True
+            )
+            helpers.download_example_datasets(portfolio=False)
+            print(
+                f"Creating new Cashflow Configuration file at {configuration_file} and "
+                "downloading example dataset.\nRunning the Cashflow class with this example "
+                "dataset which illustrates the functionality of the Cashflow class."
+            )
+        elif configuration_file is None:
+            configuration_file = helpers.download_yaml_configuration(
+                portfolio=False, example=False
+            )
+            print(
+                f"Creating new Casfhlow file at {configuration_file}. Please provide this file "
+                "path to the Casfhlow class to prevent overwriting the existing file."
+            )
+
+        self._configuration_file = str(configuration_file)
         self._cash_flow_dataset: pd.DataFrame = pd.DataFrame()
         self._custom_dataset = custom_dataset
         self._yearly_overview: pd.DataFrame = pd.DataFrame()
@@ -71,6 +91,16 @@ class Cashflow:
             )
         else:
             raise ValueError("File type not supported. Please use .yaml")
+
+        if (
+            self._cfg["general"]["file_location"] == "REPLACE_ME"
+            and self._custom_dataset.empty
+        ):
+            print(
+                f"{helpers.Style.BOLD}Please provide a file location in the configuration file (change "
+                f"'REPLACE_ME' within the general section) or provide a custom dataset.{helpers.Style.RESET}"
+                "\nSee https://github.com/JerBouma/FinancePortfolio for instructions"
+            )
 
         self._date_column: str | None = self._cfg["general"]["date_columns"]
         self._description_columns: list[str] | None = self._cfg["general"][

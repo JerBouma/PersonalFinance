@@ -1,13 +1,22 @@
 """Helpers Module"""
 
+import os
+
 import pandas as pd
+import requests
 import yaml
 
 # pylint: disable=too-few-public-methods
 
+BASE_URL = "https://raw.githubusercontent.com/JerBouma/FinancePortfolio/develop/"
+VALID_CODE = 200
+
 
 class Style:
-    """ANSI escape sequences for styling text in the terminal."""
+    """
+    This class is meant for easier styling throughout the application where it
+    adds value (e.g. to create a distinction between an error and warning).
+    """
 
     RED = "\033[91m"
     GREEN = "\033[92m"
@@ -73,3 +82,128 @@ def read_yaml_file(location: str):
         raise ValueError(f"An error occurred: {exc}") from exc
     except ValueError as exc:
         raise ValueError(f"An error occurred: {exc}") from exc
+
+
+def download_example_datasets(
+    portfolio: bool = True,
+):
+    """
+    Download example datasets from the GitHub repository. These are used to test the application.
+
+    Parameters:
+        portfolio (bool): Whether to download the example datasets for the portfolio or cashflow
+            application. Defaults to True (portfolio).
+
+    Returns:
+        The directory where the files are downloaded to.
+
+    Notes:
+        The files are downloaded to the following directory:
+            - examples/portfolio/Transactions 1.csv
+            - examples/portfolio/Transactions 2.csv
+            - examples/portfolio/Transactions 3.csv
+            - examples/cashflows/cashflow_example.csv
+    """
+    if portfolio:
+        directory = "examples/portfolio/"
+        urls = [
+            f"{BASE_URL}examples/portfolio/Transactions 1.csv",
+            f"{BASE_URL}examples/portfolio/Transactions 2.csv",
+            f"{BASE_URL}examples/portfolio/Transactions 3.csv",
+        ]
+    if not portfolio:
+        directory = "examples/cashflows/"
+        urls = [f"{BASE_URL}examples/cashflows/cashflow_example.csv"]
+
+    for url in urls:
+        response = requests.get(url, timeout=60)
+
+        previous_location = None
+        for location in directory.split("/"):
+            if location:
+                if previous_location and location not in os.listdir(previous_location):
+                    os.mkdir(directory)
+                elif location not in os.listdir():
+                    os.mkdir(location)
+
+            previous_location = location
+
+        if response.status_code == VALID_CODE:
+            with open(directory + url.split("/")[-1], "wb") as f:
+                f.write(response.content)
+        else:
+            print(
+                "Failed to download the file. HTTP status code:", response.status_code
+            )
+
+
+def download_yaml_configuration(
+    portfolio: bool = True, example: bool = False, name: str | None = None
+):
+    """
+    Download the YAML configuration files from the GitHub repository. It is both possible to download the
+    default configuration files or the example configuration files.
+
+    Parameters:
+        portfolio (bool): Whether to download the YAML configuration files for the portfolio or cashflow
+            application. Defaults to True (portfolio).
+        example (bool): Whether to download the example YAML configuration files or the default YAML
+            configuration files. Defaults to False (default).
+        name (str): The name of the YAML configuration file to download. Defaults to None (default).
+            If None, the default name is used.
+
+    Returns:
+        The directory where the files are downloaded to.
+
+    Notes:
+        The files are downloaded to the following directory:
+            - configurations/portfolio.yaml
+            - configurations/cashflow.yaml
+            - examples/configurations/portfolio_example.yaml
+            - examples/configurations/cashflow_example.yaml
+    """
+    if name and not name.endswith(".yaml"):
+        raise ValueError("Please include the .yaml extension type.")
+
+    if portfolio:
+        if example:
+            directory = "examples/configurations/"
+            if not name:
+                name = "portfolio_example.yaml"
+            url = BASE_URL + "examples/configurations/portfolio_example.yaml"
+        else:
+            directory = "configurations/"
+            if not name:
+                name = "portfolio.yaml"
+            url = BASE_URL + "configurations/portfolio.yaml"
+    if not portfolio:
+        if example:
+            directory = "examples/configurations/"
+            if not name:
+                name = "cashflow_example.yaml"
+            url = BASE_URL + "examples/configurations/cashflow_example.yaml"
+        else:
+            directory = "configurations/"
+            if not name:
+                name = "cashflow.yaml"
+            url = BASE_URL + "configurations/cashflow.yaml"
+
+    response = requests.get(url, timeout=60)
+
+    previous_location = None
+    for location in directory.split("/"):
+        if location:
+            if previous_location and location not in os.listdir(previous_location):
+                os.mkdir(directory)
+            elif location not in os.listdir():
+                os.mkdir(location)
+
+        previous_location = location
+
+    if response.status_code == VALID_CODE:
+        with open(str(directory) + str(name), "wb") as f:
+            f.write(response.content)
+    else:
+        print("Failed to download the file. HTTP status code:", response.status_code)
+
+    return str(directory) + str(name)

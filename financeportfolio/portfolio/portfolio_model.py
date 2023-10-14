@@ -748,7 +748,7 @@ def create_portfolio_performance(
     Raises:
         ValueError: If an invalid or unsupported period_string is provided.
     """
-    positions_dataset_stacked = positions_dataset.melt()
+    positions_dataset_stacked = positions_dataset.stack()  # noqa
     positions_dataset_stacked.index.names = [date_column, ticker_column]
 
     dates = positions_dataset_stacked.index.get_level_values(date_column).asfreq(
