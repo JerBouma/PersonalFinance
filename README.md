@@ -73,19 +73,19 @@ portfolio = Portfolio(
 )
 
 # Positions Overview
-positions_overview = portfolio.portfolio.get_positions_overview()
+positions_overview = portfolio.get_positions_overview()
 
 # Portfolio Overview
-portfolio_overview = portfolio.portfolio.get_portfolio_overview()
+portfolio_overview = portfolio.get_portfolio_overview()
 
 # Quarterly Portfolio Performance Overview
-portfolio_performance_overview = portfolio.portfolio.get_portfolio_performance_overview(period='quarterly')
+portfolio_performance_overview = portfolio.get_portfolio_performance_overview(period='quarterly')
 
 # Transactions Overview
-transactions_overview = portfolio.portfolio.get_transactions_overview()
+transactions_overview = portfolio.get_transactions_overview()
 
 # Yearly Transactions Performance Overview
-transactions_performance_overview = portfolio.portfolio.get_transactions_performance_overview(period='monthly')
+transactions_performance_overview = portfolio.get_transactions_performance_overview(period='monthly')
 
 # The ability to utilize the FinanceToolkit to do further analysis
 portfolio_toolkit = portfolio.to_toolkit()
@@ -96,7 +96,153 @@ rolling_sharpe_ratio = portfolio_toolkit.performance.get_sharpe_ratio(rolling=12
 
 This returns DataFrame objects which can be used to further analyze the data in Python or send over to Excel.
 
-Furthermore, it is possible to send all of this information (specified in the .yaml file) over to Excel. This is done with the following piece of code:
+### Positions Overview
+
+The Positions Overview shows the cumulative volumes, costs, invested amount, current value, returns, invested weight and current weight since the inception of the portfolio. Here, the first few rows for the instrument 'VUSA.AS' are shown (Vanguard's S&P 500 ETF):
+
+| Date       |   Volume |   Costs |   Invested Amount |   Current Value |   Cumulative Return |   Invested Weight |   Current Weight |
+|:-----------|---------:|--------:|------------------:|----------------:|--------------------:|------------------:|-----------------:|
+| 2020-01-15 |        4 |       0 |            224.32 |          224.41 |                1    |              0.44 |             0.44 |
+| 2020-01-16 |        4 |       0 |            224.32 |          225.5  |                1.01 |              0.44 |             0.44 |
+| 2020-01-17 |        4 |       0 |            224.32 |          227.54 |                1.01 |              0.44 |             0.44 |
+| 2020-01-20 |        4 |       0 |            224.32 |          227.86 |                1.02 |              0.44 |             0.44 |
+| 2020-01-21 |        4 |       0 |            224.32 |          227.71 |                1.02 |              0.44 |             0.44 |
+
+### Portfolio Overview
+
+The Portfolio Overview is an aggregation of each instrument based on volume, price, costs, invested and most recent value. Next to that, it also calculates the return, benchmark return, acquired alpha and the current portfolio weight.
+
+| Ticker   | Name                                      |   Volume |   Price |   Costs |   Invested |   Latest Price |   Latest Value |   Return |   Return Value |   Benchmark Return |   Alpha |   Weight |
+|:---------|:------------------------------------------|---------:|--------:|--------:|-----------:|---------------:|---------------:|---------:|---------------:|-------------------:|--------:|---------:|
+| ESP0.DE  | VANECK VIDEO GAMING AND ESPORTS UCITS ETF |        5 |   36.07 |    0    |     180.37 |          31    |         155.02 |    -0.14 |         -25.34 |               0.01 |   -0.16 |     0    |
+| IUSA.AS  | ISHARES S&P 500                           |       96 |   38.15 |   -1    |    3662.57 |          41.09 |        3944.93 |     0.08 |         282.36 |               0.16 |   -0.08 |     0.08 |
+| IWDA.AS  | ISHARES MSCI WOR A                        |      247 |   68.34 |   -5.14 |   16880.8  |          77.83 |       19225.2  |     0.14 |        2344.42 |               0.23 |   -0.09 |     0.38 |
+| SMH.MI   | VANECK SEMICONDUCTOR UCITS ETF            |       -2 |  -22.33 |    0    |      44.67 |          26.42 |         -52.84 |    -2.18 |         -97.51 |              -1.2  |   -0.98 |    -0    |
+| UST.PA   | MULTI NASDAQ 100                          |       84 |   43.48 |   -7.02 |    3652.35 |          57.54 |        4833.36 |     0.32 |        1181.01 |               0.19 |    0.13 |     0.1  |
+| VUSA.AS  | VANGUARD S&P500                           |      116 |   62.97 |   -3    |    7304.21 |          78.27 |        9079.32 |     0.24 |        1775.11 |               0.2  |    0.04 |     0.18 |
+| VWRL.AS  | VANGUARD FTSE AW                          |      132 |   99.24 |    0    |   13099.2  |         102.82 |       13572.2  |     0.04 |         473.07 |               0.02 |    0.01 |     0.27 |
+
+### Portfolio Performance Overview
+
+The Portfolio Performance Overview shows the performance of the portfolio, the benchmark, alpha and weight on a weekly, monthly, quarterly or yearly basis. Here some of the data is shown that represents the performance of the portfolio on a quarterly basis:
+
+| Date   | Ticker   |   Volume |   Costs |   Invested Amount |   Current Value |   Invested Weight |   Current Weight |   Return |
+|:-------|:---------|---------:|--------:|------------------:|----------------:|------------------:|-----------------:|---------:|
+| 2023Q3 | ESP0.DE  |        5 |    0    |            180.37 |          153.42 |              0    |             0    |    -0.15 |
+| 2023Q3 | IUSA.AS  |       96 |   -1    |           3662.57 |         3895.78 |              0.08 |             0.08 |     0.06 |
+| 2023Q3 | IWDA.AS  |      247 |   -5.14 |          16880.8  |        19090.6  |              0.38 |             0.38 |     0.13 |
+| 2023Q3 | SMH.MI   |       -2 |    0    |             44.67 |          -51.24 |              0    |            -0    |    -2.15 |
+| 2023Q3 | UST.PA   |       84 |   -7.02 |           3652.35 |         4715.09 |              0.08 |             0.09 |     0.29 |
+| 2023Q3 | VUSA.AS  |      116 |   -3    |           7304.21 |         8962.74 |              0.16 |             0.18 |     0.23 |
+| 2023Q3 | VWRL.AS  |      132 |    0    |          13099.2  |        13490.4  |              0.29 |             0.27 |     0.03 |
+| 2023Q4 | ESP0.DE  |        5 |    0    |            180.37 |          155.02 |              0    |             0    |    -0.14 |
+| 2023Q4 | IUSA.AS  |       96 |   -1    |           3662.57 |         3944.93 |              0.08 |             0.08 |     0.08 |
+| 2023Q4 | IWDA.AS  |      247 |   -5.14 |          16880.8  |        19225.2  |              0.38 |             0.38 |     0.14 |
+| 2023Q4 | SMH.MI   |       -2 |    0    |             44.67 |          -52.84 |              0    |            -0    |    -2.18 |
+| 2023Q4 | UST.PA   |       84 |   -7.02 |           3652.35 |         4833.36 |              0.08 |             0.1  |     0.32 |
+| 2023Q4 | VUSA.AS  |      116 |   -3    |           7304.21 |         9079.32 |              0.16 |             0.18 |     0.24 |
+| 2023Q4 | VWRL.AS  |      132 |    0    |          13099.2  |        13572.2  |              0.29 |             0.27 |     0.04 |
+
+### Transactions Overview
+
+The Transactions Overview shows all transactions that have been made in the portfolio and their current performance. It demonstrates how well assets have performed over time and could be used for example to understand the market timing of the investor.
+
+| Date       | Ticker   | Name                           |   Price |   Volume |   Costs | Currency   |   Invested Amount |   Current Value |   % Return |   Return |
+|:-----------|:---------|:-------------------------------|--------:|---------:|--------:|:-----------|------------------:|----------------:|-----------:|---------:|
+| 2022-10-27 | VWRL.AS  | VANGUARD FTSE AW               |  95.5   |        3 |       0 | EUR        |           286.5   |          308.46 |  0.0766492 |   21.96  |
+| 2022-10-27 | SMH.MI   | VANECK SEMICONDUCTOR UCITS ETF |  17.71  |        1 |       0 | EUR        |            17.71  |           26.42 |  0.491813  |    8.71  |
+| 2022-10-27 | VUSA.AS  | VANGUARD S&P500                |  72.62  |        3 |       0 | EUR        |           217.86  |          234.81 |  0.0778023 |   16.95  |
+| 2022-10-27 | IWDA.AS  | ISHARES MSCI WOR A             |  71     |       22 |       0 | EUR        |          1562     |         1712.37 |  0.0962676 |  150.37  |
+| 2022-12-01 | VUSA.AS  | VANGUARD S&P500                |  74.171 |        4 |       0 | EUR        |           296.684 |          313.08 |  0.0552642 |   16.396 |
+| 2022-12-01 | IWDA.AS  | ISHARES MSCI WOR A             |  73.69  |       15 |       0 | EUR        |          1105.35  |         1167.52 |  0.0562492 |   62.175 |
+| 2022-12-01 | VWRL.AS  | VANGUARD FTSE AW               |  99.98  |        5 |       0 | EUR        |           499.9   |          514.1  |  0.0284057 |   14.2   |
+| 2022-12-01 | UST.PA   | MULTI NASDAQ 100               |  45.92  |        2 |       0 | EUR        |            91.84  |          115.08 |  0.253049  |   23.24  |
+| 2022-12-30 | IWDA.AS  | ISHARES MSCI WOR A             |  68.47  |       14 |      -3 | EUR        |           955.58  |         1089.69 |  0.140344  |  134.11  |
+| 2022-12-30 | SMH.MI   | VANECK SEMICONDUCTOR UCITS ETF |  17.896 |        1 |       0 | EUR        |            17.896 |           26.42 |  0.476308  |    8.524 |
+| 2022-12-30 | VUSA.AS  | VANGUARD S&P500                |  67.84  |        7 |      -3 | EUR        |           471.88  |          547.89 |  0.161079  |   76.01  |
+| 2022-12-30 | UST.PA   | MULTI NASDAQ 100               |  40.58  |        4 |      -3 | EUR        |           159.32  |          230.16 |  0.44464   |   70.84  |
+| 2023-03-01 | SMH.MI   | VANECK SEMICONDUCTOR UCITS ETF |  21.245 |     -116 |       0 | EUR        |         -2464.42  |        -3064.72 |  0.243587  | -600.3   |
+| 2023-03-01 | IUSA.AS  | ISHARES S&P 500                |  37.11  |       66 |       0 | EUR        |          2449.26  |         2712.14 |  0.10733   |  262.878 |
+| 2023-06-30 | IUSA.AS  | ISHARES S&P 500                |  40.477 |       30 |      -1 | EUR        |          1213.31  |         1232.79 |  0.0160553 |   19.48  |
+
+### Transactions Performance Overview
+
+The Transactions Performance Overview shows the transactions on a weekly, monthly, quarterly or yearly basis and and shows the end of period returns of the transactions and the benchmark including the alpha. Here some of the data is shown that represents the performance of the transactions on a monthly basis:
+
+| Date    | Ticker   |   Volume |   Price |   Costs |   Invested Amount |   Current Value |   Return |   Benchmark Return |   Alpha |
+|:--------|:---------|---------:|--------:|--------:|------------------:|----------------:|---------:|-------------------:|--------:|
+| 2022-09 | IWDA.AS  |        6 |   70.84 |       0 |            425.04 |          415.8  |  -0.0217 |            -0.0267 |  0.005  |
+| 2022-09 | VUSA.AS  |        4 |   72.86 |       0 |            291.44 |          283.32 |  -0.0279 |            -0.0169 | -0.011  |
+| 2022-09 | VWRL.AS  |        3 |   96.4  |       0 |            289.2  |          282.39 |  -0.0235 |            -0.0169 | -0.0066 |
+| 2022-10 | IWDA.AS  |       22 |   71    |       0 |           1562    |         1591.48 |   0.0189 |             0.0191 | -0.0002 |
+| 2022-10 | SMH.MI   |        1 |   17.71 |       0 |             17.71 |           18.03 |   0.0181 |             0.017  |  0.0011 |
+| 2022-10 | VUSA.AS  |        3 |   72.62 |       0 |            217.86 |          223.02 |   0.0237 |             0.017  |  0.0067 |
+| 2022-10 | VWRL.AS  |        3 |   95.5  |       0 |            286.5  |          291.99 |   0.0192 |             0.017  |  0.0022 |
+| 2022-12 | IWDA.AS  |       29 |   71.08 |      -3 |           2064.32 |         1980.26 |  -0.0407 |            -0.048  |  0.0073 |
+| 2022-12 | SMH.MI   |        1 |   17.9  |       0 |             17.9  |           17.83 |  -0.0039 |             0      | -0.0039 |
+| 2022-12 | UST.PA   |        6 |   43.25 |      -3 |            262.5  |          243.27 |  -0.0733 |            -0.048  | -0.0253 |
+| 2022-12 | VUSA.AS  |       11 |   71.01 |      -3 |            784.11 |          744.94 |  -0.05   |            -0.0299 | -0.0201 |
+| 2022-12 | VWRL.AS  |        5 |   99.98 |       0 |            499.9  |          463.2  |  -0.0734 |            -0.0582 | -0.0152 |
+| 2023-03 | IUSA.AS  |       66 |   37.11 |       0 |           2449.26 |         2468.4  |   0.0078 |             0.1041 | -0.0963 |
+| 2023-03 | SMH.MI   |     -116 |   21.24 |       0 |          -2463.84 |        -2589.7  |   0.0511 |             0.04   |  0.0111 |
+| 2023-06 | IUSA.AS  |       30 |   40.48 |      -1 |           1215.4  |         1214.55 |  -0.0007 |             0      | -0.0007 |
+
+### Finance Toolkit Support
+
+Once everything is prepared, the true power comes from integration with the [Finance Toolkit 🛠️](https://github.com/JerBouma/FinanceToolkit) as the data is formatted in such a way that it can be directly fed into the FinanceToolkit with `.to_toolkit`. This gives access to 130+ ratios, technicals, performance and risk metrics as well as financial statements, earnings calendars, analyst estimates, snapshots and much more. Through the collected insights from the FinancePortfolio, a 'Portfolio' column is constructured which represents the performance of the portfolio as a whole.
+
+For example, the following shows the Rolling 12-month Sharpe Ratio of both the individual assets as well as the entire portfolio as a whole.
+
+| Date    |   VUSA.AS |   IWDA.AS |   UST.PA |   VWRL.AS |   SMH.MI |   ESP0.DE |   IUSA.AS |   Portfolio |
+|:--------|----------:|----------:|---------:|----------:|---------:|----------:|----------:|------------:|
+| 2021-01 |   -0.0307 |   -0.0214 |   0.2817 |   -0.0288 |   0.2887 |    1.0741 |   -0.03   |     -0.1007 |
+| 2021-02 |    0.1528 |    0.1489 |   0.4288 |    0.1263 |   0.3852 |    0.959  |    0.1541 |      0.084  |
+| 2021-03 |    0.5131 |    0.5516 |   0.5997 |    0.5582 |   0.4993 |    0.7067 |    0.5141 |      0.4054 |
+| 2021-04 |    0.4156 |    0.4377 |   0.5313 |    0.4339 |   0.3134 |    0.5723 |    0.4174 |      0.3337 |
+| 2021-05 |    0.2898 |    0.3294 |   0.3315 |    0.3341 |   0.2555 |    0.3886 |    0.2927 |      0.3514 |
+| 2021-06 |    0.3752 |    0.3753 |   0.3637 |    0.3589 |   0.3988 |    0.3318 |    0.3768 |      0.4065 |
+| 2021-07 |    0.4067 |    0.4197 |   0.3585 |    0.3655 |   0.3666 |    0.0908 |    0.4095 |      0.6909 |
+| 2021-08 |    0.3476 |    0.3547 |   0.2908 |    0.3019 |   0.4445 |   -0.0424 |    0.3498 |      0.6136 |
+| 2021-09 |    0.3036 |    0.3009 |   0.2644 |    0.2423 |   0.2936 |   -0.1508 |    0.3064 |      0.6319 |
+| 2021-10 |    0.5257 |    0.5129 |   0.4584 |    0.4231 |   0.3754 |   -0.0021 |    0.5283 |      0.901  |
+| 2021-11 |    0.4314 |    0.3661 |   0.4244 |    0.224  |   0.4966 |    0.0237 |    0.4333 |      0.7103 |
+| 2021-12 |    0.5057 |    0.4045 |   0.3709 |    0.2527 |   0.5332 |   -0.1704 |    0.5049 |      0.7379 |
+| 2022-01 |    0.1983 |    0.1266 |   0.0738 |    0.0017 |   0.1138 |   -0.3826 |    0.2016 |      0.353  |
+| 2022-02 |    0.063  |   -0.012  |   0.0046 |   -0.1355 |   0.0642 |   -0.3893 |    0.0665 |      0.2048 |
+| 2022-03 |    0.0347 |   -0.064  |   0.0359 |   -0.2098 |   0.031  |   -0.3958 |    0.0354 |      0.1114 |
+| 2022-04 |   -0.1086 |   -0.1962 |  -0.128  |   -0.3283 |  -0.0776 |   -0.5128 |   -0.1098 |     -0.0798 |
+| 2022-05 |   -0.1766 |   -0.2718 |  -0.1764 |   -0.4016 |  -0.0893 |   -0.4943 |   -0.1782 |     -0.2861 |
+| 2022-06 |   -0.3913 |   -0.4914 |  -0.4201 |   -0.6024 |  -0.3132 |   -0.7172 |   -0.394  |     -0.5079 |
+| 2022-07 |   -0.2234 |   -0.3029 |  -0.2471 |   -0.3903 |  -0.1561 |   -0.4682 |   -0.2238 |     -0.346  |
+| 2022-08 |   -0.3296 |   -0.4146 |  -0.3526 |   -0.5078 |  -0.2677 |   -0.5691 |   -0.3308 |     -0.4229 |
+| 2022-09 |   -0.3855 |   -0.4733 |  -0.3969 |   -0.5616 |  -0.3317 |   -0.6246 |   -0.3859 |     -0.4825 |
+| 2022-10 |   -0.4568 |   -0.5506 |  -0.5277 |   -0.6569 |  -0.4012 |   -0.8346 |   -0.4615 |     -0.5563 |
+| 2022-11 |   -0.5592 |   -0.5992 |  -0.6808 |   -0.6783 |  -0.5108 |   -0.9922 |   -0.564  |     -0.6194 |
+| 2022-12 |   -0.732  |   -0.7788 |  -0.8114 |   -0.8649 |  -0.6427 |   -1.0013 |   -0.735  |     -0.797  |
+| 2023-01 |   -0.6083 |   -0.6255 |  -0.5734 |   -0.6929 |  -0.37   |   -0.6105 |   -0.6122 |     -0.6553 |
+| 2023-02 |   -0.5958 |   -0.6179 |  -0.5243 |   -0.6967 |  -0.3558 |   -0.6523 |   -0.5999 |     -0.682  |
+| 2023-03 |   -0.7531 |   -0.7528 |  -0.5599 |   -0.816  |  -0.347  |   -0.4768 |   -0.7566 |     -0.8007 |
+| 2023-04 |   -0.7155 |   -0.718  |  -0.5107 |   -0.7887 |  -0.2837 |   -0.4632 |   -0.7194 |     -0.7653 |
+| 2023-05 |   -0.5999 |   -0.6375 |  -0.2826 |   -0.7082 |  -0.1535 |   -0.395  |   -0.6009 |     -0.6476 |
+| 2023-06 |   -0.4816 |   -0.5157 |  -0.1866 |   -0.6056 |  -0.0341 |   -0.2954 |   -0.4848 |     -0.55   |
+| 2023-07 |   -0.8659 |   -0.906  |  -0.3859 |   -0.9468 |  -0.172  |   -0.3764 |   -0.8779 |     -0.9031 |
+| 2023-08 |   -0.8485 |   -0.8999 |  -0.3687 |   -0.9525 |  -0.1313 |   -0.4005 |   -0.8604 |     -0.9427 |
+| 2023-09 |   -0.865  |   -0.9332 |  -0.3442 |   -1.0091 |  -0.0857 |   -0.3609 |   -0.8757 |     -0.9862 |
+| 2023-10 |   -1.0288 |   -1.1043 |  -0.3222 |   -1.1324 |  -0.0592 |   -0.3196 |   -1.0327 |     -1.1474 |
+
+Which can also be graphically depicted through:
+
+```python
+rolling_sharpe_ratio.plot(figsize=(15, 5), title="Rolling 12-month Sharpe Ratio")
+```
+
+Which returns:
+
+
+
+### Excel Integration
+
+It is possible to send all of this information (specified in the .yaml file) over to Excel. This is the same output as depicted above but in a neatly organized Excel file. This is done through the `create_excel_report` function.
 
 ```python
 from financeportfolio import Portfolio
