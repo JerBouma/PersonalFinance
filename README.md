@@ -9,7 +9,7 @@ Tracking your investment portfolio and personal finances can be tedious. It eith
 
 **I want to give you back the control to properly and efficiently track your finances with the FinancePortfolio**. Through the usage of configuration files, it becomes possible to connect multiple brokers as you desire and have the FinancePortfolio do the heavy lifting for you. It will automatically obtain historical data for all instruments in your portfolio, calculate the returns, benchmark returns, alpha and weight of each instrument and (optionally) provide you with a neat looking Excel file that you can further customize yourself.
 
-**It has the ability to send over your assets and portfolio to the [Finance Toolkit 🛠️](https://github.com/JerBouma/FinanceToolkit) automatically which allows the calculation of 130+ ratios, technicals, performance and risk measurements directly onto your portfolio. See [here](#finance-toolkit-support).**
+**The FinancePortfolio has the ability to send over your assets and portfolio to the [Finance Toolkit 🛠️](https://github.com/JerBouma/FinanceToolkit) in an instant** which allows the calculation of 130+ ratios, technicals, performance and risk measurements directly onto your portfolio. See [here](#finance-toolkit-support).
 
 By doing most of these things through Python and Excel, you have the complete freedom to decide what to do with the output. For example, you can use it to create your own personalized dashboards via any programming language or application such as Excel, PowerBI, Tableau, etc. **I don't want to bore you with custom dashboards that I tailored to myself just so that you can come to the conclusion that it isn't a perfect fit for you.**
 
@@ -43,12 +43,13 @@ This will generate the configuration file for you to use which you can supply ag
 
 This package allows you to track your portfolio by accepting your portfolio transactions and doing (basic) analysis on the portfolio. It uses functionality from the [Finance Toolkit 🛠️](https://github.com/JerBouma/FinanceToolkit) to be able to determine asset classes as well as obtain historical data and do currency conversions and can directly use ALL of the 130+ metrics that the FinanceToolkit has. It features the following core functionality:
 
-- The ability to read in any combination of datasets, based off the .yaml file, which allows you to combine multiple brokers or multiple accounts into one portfolio.
-- The ability to obtain historical data for all instruments in the portfolio including a custom benchmark for each instrument.
-- The ability to perform financial analysis on each individual asset and the portfolio as a whole by using the [Finance Toolkit 🛠️](https://github.com/JerBouma/FinanceToolkit).
-- An Excel integration in which all of the acquired data can easily be send over to Excel to be further analysed as you desire in case Python isn't your cup of tea. 
+- **The ability to read in any combination of datasets**, based off the .yaml file, which allows you to combine multiple brokers or multiple accounts into one portfolio.
+- **The ability to obtain historical data** for all instruments in the portfolio including a custom benchmark for each instrument.
+- **The ability to perform financial analysis** on each individual asset and the portfolio as a whole by using functionality from the [Finance Toolkit 🛠️](https://github.com/JerBouma/FinanceToolkit).
+- **The ability to create an Excel report**  which all of the acquired data can easily be send over to Excel to be further analysed as you desire in case Python isn't your cup of tea. 
 
-It can generate the following overiews:
+It can generate the following overviews:
+
 - **Positions Overview:** an overview which shows the cumulative volumes, costs, invested amount, current value, returns, invested weight and current weight since the inception of the portfolio.
 - **Portfolio Overview:** an overview which is an aggregation of each instrument based on volume, price, costs, invested and most recent value. Next to that, it also calculates the return, benchmark return, acquired alpha and the current portfolio weight.
 - **Portfolio Performance Overview:** an overview in which the portfolio is shown on a weekly, monthly, quarterly or yearly basis and shows the performance of the portfolio, the benchmark, alpha and weight.
@@ -184,7 +185,9 @@ The Transactions Performance Overview shows the transactions on a weekly, monthl
 
 ### Finance Toolkit Support
 
-Once everything is prepared, the true power comes from integration with the [Finance Toolkit 🛠️](https://github.com/JerBouma/FinanceToolkit) as the data is formatted in such a way that it can be directly fed into the FinanceToolkit with `.to_toolkit`. This gives access to 130+ ratios, technicals, performance and risk metrics as well as financial statements, earnings calendars, analyst estimates, snapshots and much more. Through the collected insights from the FinancePortfolio, a 'Portfolio' column is constructured which represents the performance of the portfolio as a whole.
+Once everything is prepared, the true power comes from integration with the [Finance Toolkit 🛠️](https://github.com/JerBouma/FinanceToolkit) as the data is formatted in such a way that it can be directly fed into the FinanceToolkit with `.to_toolkit`.
+
+This gives access to 130+ ratios, technicals, performance and risk metrics as well as financial statements, earnings calendars, analyst estimates, snapshots and much more. Through the collected insights from the FinancePortfolio, a 'Portfolio' column is constructured which represents the performance of the portfolio as a whole.
 
 For example, the following shows the Rolling 12-month Sharpe Ratio of both the individual assets as well as the entire portfolio as a whole.
 
