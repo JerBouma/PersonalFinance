@@ -1,3 +1,4 @@
+![FinancePortfolio](https://github.com/JerBouma/FinancePortfolio/assets/46355364/d3560ff3-1d2a-4ba2-a99d-dcf7b6ec2c5c)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor_this_Project-grey?logo=github)](https://github.com/sponsors/JerBouma)
 [![Documentation](https://img.shields.io/badge/Documentation-grey?logo=readme)](https://www.jeroenbouma.com/projects/FinancePortfolio)
 [![Supported Python Versions](https://img.shields.io/pypi/pyversions/FinancePortfolio)](https://pypi.org/project/FinancePortfolio/)
@@ -109,8 +110,7 @@ portfolio.create_excel_report()
 
 This creates the following file:
 
-IMAGE
-
+![Portfolio Excel Example](https://github.com/JerBouma/FinancePortfolio/assets/46355364/ffda33c2-b594-46af-9454-48db4205ff05)
 
 # Tracking your Personal Finances
 
