@@ -7,7 +7,7 @@ general:
   # The location of the file(s) that contain the portfolio data. This can be a single file
   # or a directory. If it is a directory, all files in the directory will be read. Ensure
   # that the files use the same format in that case.
-  file_location: portfolio
+  file_location: REPLACE_ME
 
   # Whether to adjust for duplicates. This can be the case if you do the same trade multiple
   # times on a day at the same price. These are then grouped together.
@@ -84,37 +84,6 @@ general:
     IE00B4L5Y983: ^GSPC
     IE00BYWQWR46: ^NDX
 
-excel:
-  # The name of the file to write to.
-  file_name: Portfolio Overview.xlsx
-
-  # Define the currency in which the numbers need to be denoted,
-  # if None specified, it will make not alterations to the numbers
-  # currency can be anything that Excel supports (e.g. € or $)
-  currency: €
-
-  # Whether to show the Portfolio Overview which gives a complete understanding of
-  # the portfolio holdings and the current value.
-  show_portfolio_overview: true
-
-  # Whether to show the Transactions Overview which gives a complete overview of all
-  # transactions that have been made including performance.
-  show_transactions_overview: true
-
-  # Define for what periods you wish to see the Portfolio Performance overview, can be
-  # Weekly, Monthly, Quarterly and/or Yearly. This is the performance of the
-  # entire portfolio for each period compared to some benchmark.
-  portfolio_performance_overviews:
-    - Quarterly
-    - Yearly
-
-  # Define for what periods you wish to see the Transactions overview, can be
-  # Weekly, Monthly, Quarterly and/or Yearly. This is the performance of the
-  # individual transactions up until now to some benchmark.
-  transactions_overviews:
-    - Quarterly
-    - Yearly
-
 adjustments:
   # This parameter determines whether you'd like to see tickers that are entirely sold
   # off in the portfolio. If you set this to true, you will not see the tickers that you
@@ -157,3 +126,34 @@ adjustments:
     - Close
     - Adj Close
     - Dividends
+
+  excel:
+    # The name of the file to write to.
+    file_name: Portfolio Overview.xlsx
+
+    # Define the currency in which the numbers need to be denoted,
+    # if None specified, it will make not alterations to the numbers
+    # currency can be anything that Excel supports (e.g. € or $)
+    currency: €
+
+    # Whether to show the Portfolio Overview which gives a complete understanding of
+    # the portfolio holdings and the current value.
+    show_portfolio_overview: true
+
+    # Whether to show the Transactions Overview which gives a complete overview of all
+    # transactions that have been made including performance.
+    show_transactions_overview: true
+
+    # Define for what periods you wish to see the Portfolio Performance overview, can be
+    # Weekly, Monthly, Quarterly and/or Yearly. This is the performance of the
+    # entire portfolio for each period compared to some benchmark.
+    portfolio_performance_overviews:
+      - Quarterly
+      - Yearly
+
+    # Define for what periods you wish to see the Transactions overview, can be
+    # Weekly, Monthly, Quarterly and/or Yearly. This is the performance of the
+    # individual transactions up until now to some benchmark.
+    transactions_overviews:
+      - Quarterly
+      - Yearly

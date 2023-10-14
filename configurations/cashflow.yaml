@@ -7,7 +7,7 @@ general:
   # These are the location of the cash flow (bank statements) files.
   # You can specify a folder (all xlsx and csv in the folder) or point
   # to a specific file of your choosing
-  file_location: cashflows
+  file_location: REPLACE_ME
 
   # These are the columns that represent dates. It will pick the first
   # column it finds in the list and it is fine if the column isn't in

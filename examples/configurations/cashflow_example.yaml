@@ -1,6 +1,7 @@
-# Cash Flow Configuration for PersonalFinance by Jeroen Bouma (JerBouma)
+# Cash Flow Configuration for FinancePortfolio by Jeroen Bouma (JerBouma)
 # With this configuration, you are able to get a complete overview of 
 # your finances with categorized transactions.
+# Find instructions here: https://github.com/JerBouma/FinancePortfolio
 ---
 
 general:
@@ -51,7 +52,7 @@ general:
     - Exclusions
 
 excel:
-  file_name: examples/Cash Flow Overview.xlsx
+  file_name: Cash Flow Example Overview.xlsx
   # Whether to overwrite the file if it already exists
   # If set to false, it will create a new file. If set to true,
   # it will fill the existing file
