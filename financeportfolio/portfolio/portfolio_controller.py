@@ -831,7 +831,7 @@ class Portfolio:
 
         return self._portfolio_overview
 
-    def get_portfolio_performance(self, period_string: str | None = None):
+    def get_portfolio_performance(self, period: str | None = None):
         """
         Calculate portfolio performance metrics for a specified period.
 
@@ -874,12 +874,12 @@ class Portfolio:
                     f"Failed to get positions overview: {error}"
                 ) from error
 
-        if not period_string:
+        if not period:
             raise ValueError(
                 "Please provide a period. This can be 'yearly', 'quarterly', 'monthly', 'weekly', or 'daily'"
             )
 
-        period_string = period_string.lower()
+        period_string = period.lower()
 
         if period_string == "yearly":
             period_symbol = "Y"
@@ -963,7 +963,7 @@ class Portfolio:
 
         return self._transactions_overview
 
-    def get_transactions_performance(self, period_string: str | None = None):
+    def get_transactions_performance(self, period: str | None = None):
         """
         Calculate transaction performance metrics for a specified period.
 
@@ -998,12 +998,12 @@ class Portfolio:
                     f"Failed to collect benchmark historical data: {error}"
                 ) from error
 
-        if not period_string:
+        if not period:
             raise ValueError(
                 "Please provide a period. This can be 'yearly', 'quarterly', 'monthly', 'weekly', or 'daily'"
             )
 
-        period_string = period_string.lower()
+        period_string = period.lower()
 
         if period_string == "yearly":
             historical_dataset = self._yearly_historical_data["Adj Close"]
@@ -1115,9 +1115,7 @@ class Portfolio:
             ]
 
             for portfolio_overview in portfolio_performance_overviews:
-                period_data = self.get_portfolio_performance(
-                    period_string=portfolio_overview
-                )
+                period_data = self.get_portfolio_performance(period=portfolio_overview)
                 sheet_name = f"{portfolio_overview.capitalize()} Portfolio Overview"
                 excel_model.create_portfolio_performance_excel_report(
                     writer,
@@ -1142,7 +1140,7 @@ class Portfolio:
 
             for transactions_overview in transactions_performance_overviews:
                 period_data = self.get_transactions_performance(
-                    period_string=transactions_overview
+                    period=transactions_overview
                 )
                 sheet_name = (
                     f"{transactions_overview.capitalize()} Transactions Overview"
