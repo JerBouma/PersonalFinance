@@ -208,7 +208,7 @@ rolling_sharpe_ratio.plot(figsize=(15, 5), title="Rolling 12-month Sharpe Ratio"
 
 Which returns:
 
-
+![Rolling Sharpe Ratio](https://github.com/JerBouma/FinancePortfolio/assets/46355364/b16d6593-4953-4b70-acc8-bdf4c680ec43)
 
 ### Excel Integration
 
