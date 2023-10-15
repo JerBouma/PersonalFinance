@@ -77,6 +77,7 @@ def create_overview_excel_report(
     )
 
     worksheet.freeze_panes(1, 1)
+    worksheet.hide_gridlines()
 
 
 def create_transactions_excel_report(
@@ -151,4 +152,5 @@ def create_transactions_excel_report(
         )
 
     worksheet.freeze_panes(1, 1)
+    worksheet.hide_gridlines()
     worksheet.autofilter(0, 0, len(dataset), len(dataset.columns) - 1)

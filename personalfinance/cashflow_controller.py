@@ -3,8 +3,7 @@
 
 import pandas as pd
 
-from financeportfolio import helpers
-from financeportfolio.cashflows import cashflow_model, excel_model
+from personalfinance import cashflow_model, excel_model, helpers
 
 # pylint: disable=too-many-instance-attributes,abstract-class-instantiated
 
@@ -53,37 +52,37 @@ class Cashflow:
                 Only '.yaml' configuration files are supported.
         """
         if example:
-            configuration_file = helpers.download_yaml_configuration(
-                portfolio=False, example=True
-            )
-            helpers.download_example_datasets(portfolio=False)
+            configuration_file = helpers.download_yaml_configuration(example=True)
+            helpers.download_example_datasets()
             print(
                 f"Creating new Cashflow Configuration file at {configuration_file} and "
                 "downloading example dataset.\nRunning the Cashflow class with this example "
                 "dataset which illustrates the functionality of the Cashflow class."
             )
         elif configuration_file is None:
-            configuration_file = helpers.download_yaml_configuration(
-                portfolio=False, example=False
-            )
+            configuration_file = helpers.download_yaml_configuration(example=False)
             print(
                 f"Creating new Casfhlow file at {configuration_file}. Please provide this file "
                 "path to the Casfhlow class to prevent overwriting the existing file."
             )
 
         self._configuration_file = str(configuration_file)
-        self._cash_flow_dataset: pd.DataFrame = pd.DataFrame()
         self._custom_dataset = custom_dataset
-        self._yearly_overview: pd.DataFrame = pd.DataFrame()
-        self._quarterly_overview: pd.DataFrame = pd.DataFrame()
-        self._monthly_overview: pd.DataFrame = pd.DataFrame()
-        self._weekly_overview: pd.DataFrame = pd.DataFrame()
-        self._yearly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
-        self._quarterly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
-        self._monthly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
-        self._weekly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
         self._highest_match_percentage: pd.Series = pd.Series()
         self._cost_or_income_criteria: dict = {}
+
+        # Cashflow Datasets
+        self._daily_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
+        self._weekly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
+        self._monthly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
+        self._quarterly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
+        self._yearly_cash_flow_dataset: pd.DataFrame = pd.DataFrame()
+
+        # Period Overviews
+        self._weekly_overview: pd.DataFrame = pd.DataFrame()
+        self._monthly_overview: pd.DataFrame = pd.DataFrame()
+        self._quarterly_overview: pd.DataFrame = pd.DataFrame()
+        self._yearly_overview: pd.DataFrame = pd.DataFrame()
 
         if self._configuration_file.endswith(".yaml"):
             self._cfg: dict[str, dict] = helpers.read_yaml_file(
@@ -99,7 +98,7 @@ class Cashflow:
             print(
                 f"{helpers.Style.BOLD}Please provide a file location in the configuration file (change "
                 f"'REPLACE_ME' within the general section) or provide a custom dataset.{helpers.Style.RESET}"
-                "\nSee https://github.com/JerBouma/FinancePortfolio for instructions"
+                "\nSee https://github.com/JerBouma/PersonalFinance for instructions"
             )
 
         self._date_column: str | None = self._cfg["general"]["date_columns"]
@@ -111,7 +110,7 @@ class Cashflow:
             "cost_or_income_columns"
         ]
 
-    def perform_analysis(self) -> pd.DataFrame:
+    def perform_analysis(self, write_to_excel: bool = True) -> pd.DataFrame:
         """
         Perform comprehensive cash flow analysis.
 
@@ -134,7 +133,7 @@ class Cashflow:
         Note:
             - Ensure that the necessary configuration and dataset have been loaded or specified before
             running this function.
-            - The resulting cash flow dataset can be accessed via the 'self._cash_flow_dataset' attribute.
+            - The resulting cash flow dataset can be accessed via the 'self._daily_cash_flow_dataset' attribute.
         """
         print(
             f"{helpers.Style.BOLD}Reading the Cash Flow Dataset(s){helpers.Style.RESET}"
@@ -150,16 +149,12 @@ class Cashflow:
             self.apply_categorization()
         else:
             print("Categorized dataset provided. Skipping categorization.")
-            self._cash_flow_dataset = self._custom_dataset
+            self._daily_cash_flow_dataset = self._custom_dataset
 
-        self.group_transactions_by_periods()
+        if self._cfg["excel"]["file_name"] and write_to_excel:
+            for period in ["weekly", "monthly", "quarterly", "yearly"]:
+                self.get_period_overview(period=period, include_totals=True)
 
-        self._yearly_overview = self.create_period_overviews(period="year")
-        self._quarterly_overview = self.create_period_overviews(period="quarter")
-        self._monthly_overview = self.create_period_overviews(period="month")
-        self._weekly_overview = self.create_period_overviews(period="week")
-
-        if self._cfg["excel"]["file_name"]:
             print(
                 f"{helpers.Style.BOLD}Creating the Excel Template{helpers.Style.RESET}"
             )
@@ -288,9 +283,9 @@ class Cashflow:
         if isinstance(excel_location, str):
             excel_location = [excel_location]
 
-        if self._cash_flow_dataset.empty:
+        if self._daily_cash_flow_dataset.empty:
             (
-                self._cash_flow_dataset,
+                self._daily_cash_flow_dataset,
                 self._date_column,
                 self._description_columns,
                 self._amount_column,
@@ -307,7 +302,9 @@ class Cashflow:
                 decimal_seperator=decimal_seperator,
             )
 
-        return self._cash_flow_dataset
+        self._daily_cash_flow_dataset.index.names = ["Date"]
+
+        return self._daily_cash_flow_dataset
 
     def apply_categorization(
         self,
@@ -360,16 +357,23 @@ class Cashflow:
             else self._cfg["general"]["categorization_threshold"]
         )
 
-        self._cash_flow_dataset, total_matches = cashflow_model.apply_categorization(
-            dataset=self._cash_flow_dataset,
+        (
+            self._daily_cash_flow_dataset,
+            total_matches,
+        ) = cashflow_model.apply_categorization(
+            dataset=self._daily_cash_flow_dataset,
             categorization=categorization,
             description_columns=description_columns,
             categorization_threshold=categorization_threshold,
         )
 
         categorized_percentage = (
-            len(self._cash_flow_dataset[self._cash_flow_dataset["category"] != "Other"])
-            / len(self._cash_flow_dataset["category"])
+            len(
+                self._daily_cash_flow_dataset[
+                    self._daily_cash_flow_dataset["category"] != "Other"
+                ]
+            )
+            / len(self._daily_cash_flow_dataset["category"])
         ) * 100
 
         self._highest_match_percentage = pd.Series(total_matches)
@@ -452,14 +456,14 @@ class Cashflow:
             )
         else:
             for indicator, multiplier in cost_or_income_criteria.items():
-                self._cash_flow_dataset.loc[
-                    self._cash_flow_dataset[cost_or_income_column] == indicator,
+                self._daily_cash_flow_dataset.loc[
+                    self._daily_cash_flow_dataset[cost_or_income_column] == indicator,
                     amount_column,
                 ] *= multiplier
 
-        return self._cash_flow_dataset
+        return self._daily_cash_flow_dataset
 
-    def group_transactions_by_periods(self) -> None:
+    def get_transactions_overview(self, period: str) -> None:
         """
         Group transactions in the cash flow dataset by different time periods.
 
@@ -474,30 +478,54 @@ class Cashflow:
             ValueError: If no cash flow dataset is found. You should run the 'read_cashflow_dataset' function
                 first to load the dataset.
         """
-        if self._cash_flow_dataset.empty:
+        if self._daily_cash_flow_dataset.empty:
             raise ValueError(
                 "No cash flow dataset found. Please run the 'read_cashflow_dataset' function first."
             )
 
-        self._yearly_cash_flow_dataset = self._cash_flow_dataset.groupby(
-            pd.Grouper(freq="Y")
-        ).apply(lambda x: x)
-        self._quarterly_cash_flow_dataset = self._cash_flow_dataset.groupby(
-            pd.Grouper(freq="Q")
-        ).apply(lambda x: x)
-        self._monthly_cash_flow_dataset = self._cash_flow_dataset.groupby(
-            pd.Grouper(freq="M")
-        ).apply(lambda x: x)
-        self._weekly_cash_flow_dataset = self._cash_flow_dataset.groupby(
-            pd.Grouper(freq="W")
-        ).apply(lambda x: x)
+        period_string = period.lower()
 
-        self._yearly_cash_flow_dataset.index.names = ["year", "date"]
-        self._quarterly_cash_flow_dataset.index.names = ["quarter", "date"]
-        self._monthly_cash_flow_dataset.index.names = ["month", "date"]
-        self._weekly_cash_flow_dataset.index.names = ["week", "date"]
+        if period_string == "daily":
+            return self._daily_cash_flow_dataset
 
-    def create_period_overviews(self, period: str) -> pd.DataFrame:
+        if period_string == "weekly":
+            self._weekly_cash_flow_dataset = self._daily_cash_flow_dataset.groupby(
+                pd.Grouper(freq="W")
+            ).apply(lambda x: x)
+            self._weekly_cash_flow_dataset.index.names = ["Weekly", "Date"]
+
+            return self._weekly_cash_flow_dataset
+
+        if period_string == "monthly":
+            self._monthly_cash_flow_dataset = self._daily_cash_flow_dataset.groupby(
+                pd.Grouper(freq="M")
+            ).apply(lambda x: x)
+            self._monthly_cash_flow_dataset.index.names = ["Monthly", "Date"]
+
+            return self._monthly_cash_flow_dataset
+
+        if period_string == "quarterly":
+            self._quarterly_cash_flow_dataset = self._daily_cash_flow_dataset.groupby(
+                pd.Grouper(freq="Q")
+            ).apply(lambda x: x)
+            self._quarterly_cash_flow_dataset.index.names = ["Quarterly", "Date"]
+
+            return self._quarterly_cash_flow_dataset
+        if period_string == "yearly":
+            self._yearly_cash_flow_dataset = self._daily_cash_flow_dataset.groupby(
+                pd.Grouper(freq="Y")
+            ).apply(lambda x: x)
+            self._yearly_cash_flow_dataset.index.names = ["Yearly", "Date"]
+
+            return self._yearly_cash_flow_dataset
+
+        raise ValueError(
+            "Period not supported. Please use 'daily', 'weekly', 'monthly', 'quarterly', or 'yearly'."
+        )
+
+    def get_period_overview(
+        self, period: str, include_totals: bool = False
+    ) -> pd.DataFrame:
         """
         Create periodical cash flow overviews based on the selected time period.
 
@@ -522,29 +550,37 @@ class Cashflow:
             ValueError: If an unsupported 'period' value is provided. Supported values are 'year', 'quarter',
                 or 'month'.
         """
-        if (
-            self._yearly_cash_flow_dataset.empty
-            and self._quarterly_cash_flow_dataset.empty
-            and self._monthly_cash_flow_dataset.empty
-        ):
+        if self._daily_cash_flow_dataset.empty:
             raise ValueError(
-                "No period cash flow datasets found. Please run the 'group_transactions_by_periods' function first."
+                "No cash flow dataset found. Please run the 'read_cashflow_dataset' function first."
             )
 
-        if period == "year":
-            period_dataset = self._yearly_cash_flow_dataset
-        elif period == "quarter":
-            period_dataset = self._quarterly_cash_flow_dataset
-        elif period == "month":
-            period_dataset = self._monthly_cash_flow_dataset
-        elif period == "week":
+        period_string = period.lower()
+
+        if period_string == "weekly":
+            if self._weekly_cash_flow_dataset.empty:
+                self.get_transactions_overview(period=period_string)
             period_dataset = self._weekly_cash_flow_dataset
+        elif period_string == "monthly":
+            if self._monthly_cash_flow_dataset.empty:
+                self.get_transactions_overview(period=period_string)
+            period_dataset = self._monthly_cash_flow_dataset
+        elif period_string == "quarterly":
+            if self._quarterly_cash_flow_dataset.empty:
+                self.get_transactions_overview(period=period_string)
+            period_dataset = self._quarterly_cash_flow_dataset
+        elif period_string == "yearly":
+            if self._yearly_cash_flow_dataset.empty:
+                self.get_transactions_overview(period=period_string)
+            period_dataset = self._yearly_cash_flow_dataset
         else:
             raise ValueError(
-                "Period not supported. Please use 'year', 'quarter', 'month' or 'week."
+                "Period not supported. Please use 'weekly', 'monthly', 'quarterly', or 'yearly'."
             )
 
-        period_values = period_dataset.index.get_level_values(period).unique()
+        period_values = period_dataset.index.get_level_values(
+            period_string.capitalize()
+        ).unique()
         categories = list(self._cfg["categories"].keys()) + ["Other"]
         period_cash_flows = pd.DataFrame(columns=period_values, index=categories)
 
@@ -564,7 +600,8 @@ class Cashflow:
 
         period_cash_flows = period_cash_flows.drop(category_exclusions, axis=1)
 
-        period_cash_flows.insert(0, "Totals", period_cash_flows.sum(axis=1))
+        if include_totals:
+            period_cash_flows.insert(0, "Totals", period_cash_flows.sum(axis=1))
 
         return period_cash_flows
 
@@ -620,7 +657,7 @@ class Cashflow:
         if "daily" in overviews:
             excel_model.create_transactions_excel_report(
                 writer,
-                dataset=self._cash_flow_dataset,
+                dataset=self._daily_cash_flow_dataset.copy(),
                 sheet_name="Daily Overview",
                 currency=currency,
             )
@@ -628,28 +665,28 @@ class Cashflow:
         if "weekly" in overviews:
             excel_model.create_overview_excel_report(
                 writer,
-                dataset=self._weekly_overview,
+                dataset=self._weekly_overview.copy(),
                 sheet_name="Weekly Overview",
                 currency=currency,
             )
         if "monthly" in overviews:
             excel_model.create_overview_excel_report(
                 writer,
-                dataset=self._monthly_overview,
+                dataset=self._monthly_overview.copy(),
                 sheet_name="Monthly Overview",
                 currency=currency,
             )
         if "quarterly" in overviews:
             excel_model.create_overview_excel_report(
                 writer,
-                dataset=self._quarterly_overview,
+                dataset=self._quarterly_overview.copy(),
                 sheet_name="Quarterly Overview",
                 currency=currency,
             )
         if "yearly" in overviews:
             excel_model.create_overview_excel_report(
                 writer,
-                dataset=self._yearly_overview,
+                dataset=self._yearly_overview.copy(),
                 sheet_name="Yearly Overview",
                 currency=currency,
             )
