@@ -1,7 +1,4 @@
-
-
-![1](/Ongetiteld.png)
-
+![PersonalFinance](https://github.com/JerBouma/PersonalFinance/assets/46355364/33a88b7d-f48f-42f0-83ae-d0950a3aed6e)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor_this_Project-grey?logo=github)](https://github.com/sponsors/JerBouma)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-grey?logo=buymeacoffee)](https://www.buymeacoffee.com/jerbouma)
 [![Twitter](https://img.shields.io/badge/Twitter-grey?logo=x)](https://twitter.com/JerBouma)
@@ -154,7 +151,7 @@ fig.subplots_adjust(wspace=0, hspace=0)
 
 This returns the following plot:
 
-![Alt text](image.png)
+![Cashflow Plot](https://github.com/JerBouma/PersonalFinance/assets/46355364/cce82128-7c9d-4ed0-9bf8-60c2c23a2cf6)
 
 # Contact
 If you have any questions about PersonalFinance or would like to share with me what you have been working on, feel free to reach out to me via:
