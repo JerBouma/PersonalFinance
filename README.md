@@ -17,14 +17,8 @@ To assist in not needing to get **exact** matches, the package makes use of the 
 By doing most of these things through Python and Excel, you have the complete freedom to decide what to do with the output. For example, you can use it to create your own personalized dashboards via any programming language or application such as Excel, PowerBI, Tableau, etc. **I don't want to bore you with custom dashboards that I tailored to myself just so that you can come to the conclusion that it isn't a perfect fit for you.**
 
 <p align="center">
-    <img src="examples/Personal Finance - 2. Video Demo.gif" alt="Personal Finance Illustration" width="100%" onerror="this.style.display = 'none'"/>
+    <img src="examples/Personal Finance - 3. Video Demo.gif" alt="Personal Finance Illustration" width="100%" onerror="this.style.display = 'none'"/>
 </p>
-
-# Table of Contents
-
-- [Installation](#installation)
-- [Getting Started](#getting-started)
-- [Contact](#contact)
 
 # Installation
 
@@ -52,10 +46,10 @@ To get started, you need to acquire a configuration file that defines your trans
 
 ___ 
 
-<b><div align="center">Find detailed guide how to use the functionalities <a href="https://www.jeroenbouma.com/projects/personalfinance">here</a>.</div></b>
+<b><div align="center">Find a detailed guide how to use the package for your own personal finances <a href="https://www.jeroenbouma.com/projects/personalfinance">here</a>.</div></b>
 ___
 
-It is as simple as using the following code:
+To see an example, you can run the following code:
 
 ```python
 from personalfinance import Cashflow
@@ -65,14 +59,14 @@ cashflow = Cashflow(example=True)
 cashflow.perform_analysis()
 ```
 
-Before it does anything, it will download the example datasets as found [here](https://github.com/JerBouma/PersonalFinance/tree/develop/examples). This is merely meant for you to understand how the functionality works. When you are ready to use it for your own cashflows, you can simply remove the `example=True` argument and supply your own configuration file. If you don't have one yet, it will automatically supply one if you use `Cashflow()`.
+Before it does anything, it will download the example datasets as found [here](https://github.com/JerBouma/PersonalFinance/tree/develop/examples). This is merely meant for you to understand how the functionality works. When you are ready to use it for your own cashflows, you can simply remove the `example=True` argument and supply your own configuration file. If you don't have one yet, it will automatically supply one if you use `Cashflow()`. See the Notebooks as found [here](https://www.jeroenbouma.com/projects/personalfinance) for an in-depth explanation.
 
-The perform analysis does the following things:
+The `perform_analysis` functionality does the following things:
 
 1. **It reads all the cashflow datasets** based on the configuration file's `file_location` parameter. This can be a single file, a selection of files or an entire folder. It also applies the cost or income indicator if the numbers in your file are all positive (e.g. a column that says "Plus" or "Minus") if chosen.
 3. **It starts applying categorization** based on the `categories` section in the configuration file. It uses [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) to find matches that are closely related (e.g. 'Tim's Bakery' and 'Bakery' would fit in the same category)
 4. **It generates multiple transactional and categorized overviews** on a weekly, monthly, quarterly and yearly basis.
-4. **It generates an Excel file** in which all of the results are displayed in a neat format based on the `excel` section of the configuration file. (Optional)
+4. **It generates an Excel file** in which all of the results are displayed in a neat format based on the `excel` section of the configuration file. This is optional and can be disabled by setting `write_to_excel` to `False`.
 
 See the resulting image for the file that is generated based on the example dataset:
 
@@ -115,7 +109,7 @@ Which returns:
 | 2023-09-11/2023-09-17 | 2023-09-12 | geldmaat - Omitted due to Privacy Reasons     |  -18.43 | geldmaat - Omitted due to Privacy Reasons     | Transactions    | geldmaat     |           100% |
 | 2023-09-11/2023-09-17 | 2023-09-13 | asr - Omitted due to Privacy Reasons          |   12.2  | asr - Omitted due to Privacy Reasons          | Income          | asr          |           100% |
 
-Which makes it possible to plot the spending pattern over time for each category. This can be done simply by selecting the column and using `.plot()` but it also possible to create a larger overview as shown below:
+These datasets make it possible to plot the spending pattern over time for each category. This can be simply by selecting the column and using `.plot()` from Pandas but it also possible to create a larger overview as shown below:
 
 ```python
 import matplotlib.pyplot as plt
