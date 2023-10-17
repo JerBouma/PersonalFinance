@@ -1,14 +1,14 @@
 [tool.poetry]
-name = "financeportfolio"
+name = "personalfinance"
 version = "1.0.0"
-description = "Tracking Your Cashflows and Portfolio The Easy Way"
+description = "Tracking your Income and Expenses Automatically"
 license = "MIT"
 authors = ["Jeroen Bouma"]
 packages = [
-    { include = "financeportfolio" },
+    { include = "personalfinance" },
 ]
 readme = "README.md"
-homepage = "https://www.jeroenbouma.com/"
+homepage = "https://www.jeroenbouma.com/projects/personalfinance"
 repository = "https://github.com/JerBouma/PersonalFinance"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -24,9 +24,11 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.10, <3.13"
 pandas = {extras = ["excel", "performance"], version = "^2.1.0"}
-financetoolkit = "^1.3.6"
-financedatabase = "^2.2.0"
 xlsxwriter = "^3.1.5"
+fuzzywuzzy = "^0.18.0"
+tqdm = "^4.66.1"
+requests = "^2.31.0"
+python-levenshtein = "^0.23.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.1"
@@ -40,6 +42,11 @@ ruff = "^0.0.287"
 pytest-timeout = "^2.1.0"
 pytest-recorder = "^0.2.3"
 ipykernel = "^6.25.2"
+mypy = "^1.6.0"
+types-requests = "^2.31.0.9"
+types-pyyaml = "^6.0.12.12"
+pre-commit = "^3.5.0"
+
 
 [build-system]
 requires = ["setuptools<65.5.0", "poetry-core>=1.0.0"]
