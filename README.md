@@ -16,6 +16,10 @@ To assist in not needing to get **exact** matches, the package makes use of the 
 
 By doing most of these things through Python and Excel, you have the complete freedom to decide what to do with the output. For example, you can use it to create your own personalized dashboards via any programming language or application such as Excel, PowerBI, Tableau, etc. **I don't want to bore you with custom dashboards that I tailored to myself just so that you can come to the conclusion that it isn't a perfect fit for you.**
 
+<p align="center">
+    <img src="examples/Personal Finance - 2. Video Demo.gif" alt="Personal Finance Illustration" width="100%" onerror="this.style.display = 'none'"/>
+</p>
+
 # Table of Contents
 
 - [Installation](#installation)
@@ -72,7 +76,7 @@ The perform analysis does the following things:
 
 See the resulting image for the file that is generated based on the example dataset:
 
-GIF
+![Quarterly Overview Excel Example](https://github.com/JerBouma/PersonalFinance/assets/46355364/5cafc317-19c8-4c02-b46e-7e79e3e90b11)
 
 Besides that, you don't have to continue in Excel if you are handy with Python as all created datasets can be directly accessed in Python as well. All of the datasets can be accessed through the related `get` functions for example:
 
