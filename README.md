@@ -24,6 +24,8 @@ By doing most of these things through Python and Excel, you have the complete fr
 
 Before installation, consider starring the project on GitHub which helps others find the project as well. 
 
+<a href="https://github.com/JerBouma/PersonalFinance" target="_blank"><img width="1415" alt="image" src="https://github.com/JerBouma/PersonalFinance/assets/46355364/6138cce1-87be-43f5-8f9f-f647bba9844e"></a>
+
 To install the PersonalFinance it simply requires the following:
 
 ```
