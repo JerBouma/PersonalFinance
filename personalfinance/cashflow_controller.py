@@ -105,7 +105,7 @@ class Cashflow:
         self._description_columns: list[str] | None = self._cfg["general"][
             "description_columns"
         ]
-        self._amount_column: str | None = self._cfg["general"]["amount_columns"]
+        self._amount_column: str = self._cfg["general"]["amount_columns"]
         self._cost_or_income_column: str | None = self._cfg["general"][
             "cost_or_income_columns"
         ]
@@ -403,7 +403,6 @@ class Cashflow:
         self,
         cost_or_income_column: str | None = None,
         cost_or_income_criteria: dict[str, int] | None = None,
-        amount_column: str | None = None,
     ) -> pd.DataFrame:
         """
         Apply cost or income indicators to transaction amounts based on provided criteria.
@@ -443,8 +442,6 @@ class Cashflow:
             else self._cost_or_income_criteria
         )
 
-        amount_column = amount_column if amount_column else self._amount_column
-
         if not cost_or_income_column:
             print(
                 "No cost or income indicator columns found in the cash flow dataset. Please specify "
@@ -458,7 +455,7 @@ class Cashflow:
             for indicator, multiplier in cost_or_income_criteria.items():
                 self._daily_cash_flow_dataset.loc[
                     self._daily_cash_flow_dataset[cost_or_income_column] == indicator,
-                    amount_column,
+                    self._amount_column,
                 ] *= multiplier
 
         return self._daily_cash_flow_dataset
@@ -524,7 +521,11 @@ class Cashflow:
         )
 
     def get_period_overview(
-        self, period: str, include_totals: bool = False
+        self,
+        period: str,
+        include_totals: bool = False,
+        categories: list | None = None,
+        category_exclusions: list | None = None,
     ) -> pd.DataFrame:
         """
         Create periodical cash flow overviews based on the selected time period.
@@ -534,76 +535,111 @@ class Cashflow:
         function to calculate aggregated cash flow data for each category within the chosen period.
 
         Parameters:
-            period (str): The time period for which the cash flow overview should be created. Supported
-                options are 'year', 'quarter', or 'month'.
-            transpose (bool): A boolean value indicating whether to transpose the resulting DataFrame.
-                If True, the categories are displayed as columns and the periods as rows. If False, the
-                categories are displayed as rows and the periods as columns. Defaults to True.
+            period (str): The time period to create the cash flow overview for. Supported values are 'weekly',
+                'monthly', 'quarterly', or 'yearly'.
+            include_totals (bool): A boolean value indicating whether to include totals in the overview.
+                If True, the overview will include a total row and column.
+            amount_column (str | None): The column name representing transaction amounts in the dataset.
+                If None, it defaults to the column specified during dataset formatting ('self._amount_column').
+            categories (list | None): A list of category names to include in the overview. If None, it defaults
+                to the categories specified in the configuration ('self._cfg["categories"]') plus an 'Other'
+                category.
+            category_exclusions (list | None): A list of category names to exclude from the overview. If None,
+                it defaults to the category exclusions specified in the configuration
+                ('self._cfg["category_exclusions"]').
 
         Returns:
             pd.DataFrame: A DataFrame containing cash flow overviews for the specified period, with
                 categories as rows and periods as columns.
 
         Raises:
-            ValueError: If no period cash flow datasets are found. You should run the
-                'group_transactions_by_periods' function first to group the transactions by periods.
-            ValueError: If an unsupported 'period' value is provided. Supported values are 'year', 'quarter',
-                or 'month'.
+            ValueError: If no cash flow dataset is found. You should run the 'read_cashflow_dataset' function
+                first to load the dataset.
+            ValueError: If the specified period is not supported. Supported values are 'weekly', 'monthly',
+                'quarterly', or 'yearly'.
         """
         if self._daily_cash_flow_dataset.empty:
             raise ValueError(
                 "No cash flow dataset found. Please run the 'read_cashflow_dataset' function first."
             )
 
+        categories = (
+            categories
+            if categories
+            else list(self._cfg["categories"].keys()) + ["Other"]
+        )
+
+        category_exclusions = (
+            category_exclusions
+            if category_exclusions
+            else self._cfg["general"]["category_exclusions"]
+        )
+
         period_string = period.lower()
 
         if period_string == "weekly":
             if self._weekly_cash_flow_dataset.empty:
                 self.get_transactions_overview(period=period_string)
-            period_dataset = self._weekly_cash_flow_dataset
-        elif period_string == "monthly":
+
+            self._weekly_overview = cashflow_model.create_period_overview(
+                dataset=self._weekly_cash_flow_dataset,
+                period_string=period_string,
+                amount_column=self._amount_column,
+                categories=categories,
+                category_exclusions=category_exclusions,
+                include_totals=include_totals,
+            )
+
+            return self._weekly_overview
+
+        if period_string == "monthly":
             if self._monthly_cash_flow_dataset.empty:
                 self.get_transactions_overview(period=period_string)
-            period_dataset = self._monthly_cash_flow_dataset
-        elif period_string == "quarterly":
+
+            self._monthly_overview = cashflow_model.create_period_overview(
+                dataset=self._monthly_cash_flow_dataset,
+                period_string=period_string,
+                amount_column=self._amount_column,
+                categories=categories,
+                category_exclusions=category_exclusions,
+                include_totals=include_totals,
+            )
+
+            return self._monthly_overview
+
+        if period_string == "quarterly":
             if self._quarterly_cash_flow_dataset.empty:
                 self.get_transactions_overview(period=period_string)
-            period_dataset = self._quarterly_cash_flow_dataset
-        elif period_string == "yearly":
+
+            self._quarterly_overview = cashflow_model.create_period_overview(
+                dataset=self._quarterly_cash_flow_dataset,
+                period_string=period_string,
+                amount_column=self._amount_column,
+                categories=categories,
+                category_exclusions=category_exclusions,
+                include_totals=include_totals,
+            )
+
+            return self._quarterly_overview
+
+        if period_string == "yearly":
             if self._yearly_cash_flow_dataset.empty:
                 self.get_transactions_overview(period=period_string)
-            period_dataset = self._yearly_cash_flow_dataset
-        else:
-            raise ValueError(
-                "Period not supported. Please use 'weekly', 'monthly', 'quarterly', or 'yearly'."
+
+            self._yearly_overview = cashflow_model.create_period_overview(
+                dataset=self._yearly_cash_flow_dataset,
+                period_string=period_string,
+                amount_column=self._amount_column,
+                categories=categories,
+                category_exclusions=category_exclusions,
+                include_totals=include_totals,
             )
 
-        period_values = period_dataset.index.get_level_values(
-            period_string.capitalize()
-        ).unique()
-        categories = list(self._cfg["categories"].keys()) + ["Other"]
-        period_cash_flows = pd.DataFrame(columns=period_values, index=categories)
+            return self._yearly_overview
 
-        category_exclusions = self._cfg["general"]["category_exclusions"]
-
-        for period_value in period_values:
-            period_data = (
-                period_dataset.loc[period_value]
-                .groupby("category")
-                .agg({self._amount_column: "sum"})
-            )
-            period_data = period_data.reindex(categories).fillna(0)
-
-            period_cash_flows.loc[:, period_value] = period_data.to_numpy()
-
-        period_cash_flows = period_cash_flows.T
-
-        period_cash_flows = period_cash_flows.drop(category_exclusions, axis=1)
-
-        if include_totals:
-            period_cash_flows.insert(0, "Totals", period_cash_flows.sum(axis=1))
-
-        return period_cash_flows
+        raise ValueError(
+            "Period not supported. Please use 'weekly', 'monthly', 'quarterly', or 'yearly'."
+        )
 
     def create_excel_template(
         self,

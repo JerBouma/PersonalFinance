@@ -413,3 +413,53 @@ def apply_categorization(
     dataset["certainty"] = certainty
 
     return dataset, total_matches
+
+
+def create_period_overview(
+    dataset: pd.DataFrame,
+    period_string: str,
+    amount_column: str,
+    categories: list,
+    category_exclusions: list | None = None,
+    include_totals: bool = False,
+):
+    """
+    Create period overviews based on the cash flow dataset. It creates a DataFrame with the
+    specified period as the index and the categories as the columns. The values in the DataFrame
+    are the sum of the amounts for each category in the specified period.
+
+    Parameters:
+        dataset (pd.DataFrame): The cash flow dataset to create the period overview from.
+        period_string (str): The period to create the overview for. This could be 'weekly', 'monthly',
+            'quarterly', or 'yearly'.
+        amount_column (str): The name of the column containing the transaction amounts.
+        categories (list): A list of categories to include in the period overview.
+        category_exclusions (list | None): A list of categories to exclude from the period overview.
+            If None, no categories are excluded.
+        include_totals (bool): A flag indicating whether to include a 'Totals' column in the period
+            overview. If True, a 'Totals' column is included.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the period overview.
+    """
+    period_values = dataset.index.get_level_values(period_string.capitalize()).unique()
+
+    period_cash_flows = pd.DataFrame(columns=period_values, index=categories)
+
+    for period_value in period_values:
+        period_data = (
+            dataset.loc[period_value].groupby("category").agg({amount_column: "sum"})
+        )
+        period_data = period_data.reindex(categories).fillna(0)
+
+        period_cash_flows.loc[:, period_value] = period_data.to_numpy()
+
+    period_cash_flows = period_cash_flows.T
+
+    if category_exclusions:
+        period_cash_flows = period_cash_flows.drop(category_exclusions, axis=1)
+
+    if include_totals:
+        period_cash_flows.insert(0, "Totals", period_cash_flows.sum(axis=1))
+
+    return period_cash_flows
