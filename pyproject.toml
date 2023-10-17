@@ -47,7 +47,6 @@ types-requests = "^2.31.0.9"
 types-pyyaml = "^6.0.12.12"
 pre-commit = "^3.5.0"
 
-
 [build-system]
 requires = ["setuptools<65.5.0", "poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
