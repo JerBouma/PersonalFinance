@@ -8,7 +8,7 @@ import yaml
 
 # pylint: disable=too-few-public-methods
 
-BASE_URL = "https://raw.githubusercontent.com/JerBouma/PersonalFinance/develop/"
+BASE_URL = "https://raw.githubusercontent.com/JerBouma/PersonalFinance/main/"
 VALID_CODE = 200
 
 
@@ -84,7 +84,7 @@ def read_yaml_file(location: str):
         raise ValueError(f"An error occurred: {exc}") from exc
 
 
-def download_example_datasets():
+def download_example_datasets(base_url: str | None = None):
     """
     Download example datasets from the GitHub repository. These are used to test the application.
 
@@ -98,8 +98,10 @@ def download_example_datasets():
             - examples/portfolio/Transactions 3.csv
             - examples/cashflows/cashflow_example.csv
     """
+    base_url = base_url if base_url else BASE_URL
+
     directory = "examples/cashflows/"
-    urls = [f"{BASE_URL}examples/cashflows/cashflow_example.csv"]
+    urls = [f"{base_url}examples/cashflows/cashflow_example.csv"]
 
     for url in urls:
         response = requests.get(url, timeout=60)

@@ -43,6 +43,6 @@ repos:
     hooks:
       - id: pylint
         name: pylint
-        entry: pylint financetoolkit
+        entry: pylint personalfinance
         language: system
         types: [python]
