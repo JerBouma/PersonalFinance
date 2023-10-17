@@ -19,8 +19,8 @@ By doing most of these things through Python and Excel, you have the complete fr
 # Table of Contents
 
 - [Installation](#installation)
-- [Analyzing your Investment Portfolio](#analyzing-your-investment-portfolio)
-- [Tracking your Personal Finances](#tracking-your-personal-finances)
+- [Getting Started](#getting-started)
+- [Contact](#contact)
 
 # Installation
 
@@ -40,18 +40,18 @@ from personalfinance import Cashflow
 cashflow = Cashflow()
 ```
 
-This will generate the configuration file for you to use which you can supply again by using `configuration_file='portfolio'.yaml`. See below for more information about each capability and what you can do with this file.
+This will generate the configuration file for you to use which you can supply again by using `configuration_file='cashflow.yaml'`. See below for more information about each capability and what you can do with this file.
 
 ## Getting Started
 
-To get started, you need to acquire a configuration file that defines your portfolio. This file consists of things such as the location of the datasets, the columns that define e.g. the volume, ticker and price, the currency of the portfolio, the benchmark to use, etc. An example version is automatically downloaded on initialization.
+To get started, you need to acquire a configuration file that defines your transactions. This file consists of things such as the location of the datasets, the columns that define e.g. the volume, ticker and price, the currency of the portfolio, the benchmark to use, etc. An example version is automatically downloaded on initialization.
 
 ___ 
 
-<b><div align="center">Find detailed guide how to use the Portfolio functionalities <a href="https://www.jeroenbouma.com/projects/financetoolkit">here</a>.</div></b>
+<b><div align="center">Find detailed guide how to use the functionalities <a href="https://www.jeroenbouma.com/projects/personalfinance">here</a>.</div></b>
 ___
 
-It as simple as using the following code:
+It is as simple as using the following code:
 
 ```python
 from personalfinance import Cashflow
@@ -65,36 +65,20 @@ Before it does anything, it will download the example datasets as found [here](h
 
 The perform analysis does the following things:
 
-1. It reads all the cashflow datasets based on the configuration file's `file_location` parameter. This can be a single file, a selection of files or an entire folder.
-2. (Optional) It applies the cost or income indicator if the numbers in your file are all positive (e.g. a column that says "Plus" or "Minus")
-3. It starts applying categorization based on the `categories` section in the configuration file. It uses [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) to find matches that are closely related (e.g. 'Tim's Bakery' and 'Bakery' would fit in the same category)
-4. It generates an Excel file in which all of the results are displayed in a neat format based on the `excel` section of the configuration file.
+1. **It reads all the cashflow datasets** based on the configuration file's `file_location` parameter. This can be a single file, a selection of files or an entire folder. It also applies the cost or income indicator if the numbers in your file are all positive (e.g. a column that says "Plus" or "Minus") if chosen.
+3. **It starts applying categorization** based on the `categories` section in the configuration file. It uses [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) to find matches that are closely related (e.g. 'Tim's Bakery' and 'Bakery' would fit in the same category)
+4. **It generates multiple transactional and categorized overviews** on a weekly, monthly, quarterly and yearly basis.
+4. **It generates an Excel file** in which all of the results are displayed in a neat format based on the `excel` section of the configuration file. (Optional)
 
-See the resulting GIF for the file that is generated based on the example dataset:
+See the resulting image for the file that is generated based on the example dataset:
 
 GIF
 
 Besides that, you don't have to continue in Excel if you are handy with Python as all created datasets can be directly accessed in Python as well. All of the datasets can be accessed through the related `get` functions for example:
 
-```python
-cashflow.get_transactions_overview(period='quarterly')
-```
-
-Which returns:
-
-| Weekly                | Date       | name                                          |   value | description                                   | category        | keyword      |   certainty |
-|:----------------------|:-----------|:----------------------------------------------|--------:|:----------------------------------------------|:----------------|:-------------|------------:|
-| 2023-09-04/2023-09-10 | 2023-09-10 | thuisbezorgd - Omitted due to Privacy Reasons |  -12.55 | thuisbezorgd - Omitted due to Privacy Reasons | Food and Drinks | thuisbezorgd |           1 |
-| 2023-09-04/2023-09-10 | 2023-09-10 | Tinq - Omitted due to Privacy Reasons         |  -53.81 | Tinq - Omitted due to Privacy Reasons         | Transport       | Tinq         |           1 |
-| 2023-09-04/2023-09-10 | 2023-09-10 | JOOP SCHOORL - Omitted due to Privacy Reasons |  -31.63 | JOOP SCHOORL - Omitted due to Privacy Reasons | Food and Drinks | JOOP SCHOORL |           1 |
-| 2023-09-11/2023-09-17 | 2023-09-12 | Albert Heijn - Omitted due to Privacy Reasons |  -13.26 | Albert Heijn - Omitted due to Privacy Reasons | Groceries       | Albert Heijn |           1 |
-| 2023-09-11/2023-09-17 | 2023-09-12 | geldmaat - Omitted due to Privacy Reasons     |  -18.43 | geldmaat - Omitted due to Privacy Reasons     | Transactions    | geldmaat     |           1 |
-| 2023-09-11/2023-09-17 | 2023-09-13 | asr - Omitted due to Privacy Reasons          |   12.2  | asr - Omitted due to Privacy Reasons          | Income          | asr          |           1 |
-
-And the following:
 
 ```python
-cashflow.get_period_overview(period='quarterly')
+cashflow.get_period_overview(period='yearly')
 ```
 
 Which returns:
@@ -111,6 +95,21 @@ Which returns:
 | 2021     |  2354.07 | 34372.5  |   -12231.2  |   -273.87 |       888.03 |                -144.25 |    -52.87 |   -70.02 |         -210.36 |       -1198.2  |    -1184.15 |   -30.12 |   -4145.31 |    -3529.78 |          -2758.37 |    -748.1  |    -159.17 |                            0    | -6170.67 |
 | 2022     | 19802.3  | 93827.3  |   -25007    |   -274.27 |      -812.78 |               -1339.41 |  -8110.85 |    -2.74 |         -785.28 |       -2142.96 |    -3092.08 |   -87.76 |  -14984.6  |    -3670.8  |          -6591.52 |   -3657.21 |    -359.38 |                          -75.52 | -3030.89 |
 | 2023     | -8997.16 | 60268.2  |    -1016.73 |   -180.57 |    -24546.8  |               -1001.21 | -13886.2  | -8370.02 |        -1601.86 |         789.25 |    -1824.88 |  -609.54 |   -2386.02 |    -2919.07 |          -5753.73 |   -4268.35 |    -476.46 |                         -480.95 |  -732.3  |
+
+And the following:
+
+```python
+cashflow.get_transactions_overview(period='weekly')
+```
+
+Which returns:
+
+| Weekly                | Date       | Name                                          |   Value | Description                                   | Category        | Keyword      |   Certainty |
+|:----------------------|:-----------|:----------------------------------------------|--------:|:----------------------------------------------|:----------------|:-------------|------------:|
+| 2023-09-04/2023-09-10 | 2023-09-10 | thuisbezorgd - Omitted due to Privacy Reasons |  -12.55 | thuisbezorgd - Omitted due to Privacy Reasons | Food and Drinks | thuisbezorgd |           100% |
+| 2023-09-04/2023-09-10 | 2023-09-10 | Tinq - Omitted due to Privacy Reasons         |  -53.81 | Tinq - Omitted due to Privacy Reasons         | Transport       | Tinq         |           100% |
+| 2023-09-11/2023-09-17 | 2023-09-12 | geldmaat - Omitted due to Privacy Reasons     |  -18.43 | geldmaat - Omitted due to Privacy Reasons     | Transactions    | geldmaat     |           100% |
+| 2023-09-11/2023-09-17 | 2023-09-13 | asr - Omitted due to Privacy Reasons          |   12.2  | asr - Omitted due to Privacy Reasons          | Income          | asr          |           100% |
 
 Which makes it possible to plot the spending pattern over time for each category. This can be done simply by selecting the column and using `.plot()` but it also possible to create a larger overview as shown below:
 
