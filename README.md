@@ -1,4 +1,4 @@
-![PersonalFinance](https://github.com/JerBouma/PersonalFinance/assets/46355364/33a88b7d-f48f-42f0-83ae-d0950a3aed6e)
+[![PersonalFinance](https://github.com/JerBouma/PersonalFinance/assets/46355364/33a88b7d-f48f-42f0-83ae-d0950a3aed6e)](https://github.com/JerBouma/PersonalFinance)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor_this_Project-grey?logo=github)](https://github.com/sponsors/JerBouma)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-grey?logo=buymeacoffee)](https://www.buymeacoffee.com/jerbouma)
 [![Twitter](https://img.shields.io/badge/Twitter-grey?logo=x)](https://twitter.com/JerBouma)
@@ -44,7 +44,7 @@ This will generate the configuration file for you to use which you can supply ag
 
 ## Getting Started
 
-To get started, you need to acquire a configuration file that defines your transactions. This file consists of things such as the location of the datasets, the columns that define e.g. the volume, ticker and price, the currency of the portfolio, the benchmark to use, etc. An example version is automatically downloaded on initialization.
+To get started, you need to acquire a configuration file that defines your transactions. This file consists of things such as the location of the datasets, the columns that define e.g. the name, the amount, the date and the categories and keywords that can be used to categorize transactions. The configuration file is automatically downloaded on initialization.
 
 ___ 
 
@@ -56,12 +56,12 @@ To see an example, you can run the following code:
 ```python
 from personalfinance import Cashflow
 
-cashflow = Cashflow(example=True)
+cashflows = Cashflow(example=True)
 
-cashflow.perform_analysis()
+cashflows.perform_analysis()
 ```
 
-Before it does anything, it will download the example datasets as found [here](https://github.com/JerBouma/PersonalFinance/tree/develop/examples). This is merely meant for you to understand how the functionality works. When you are ready to use it for your own cashflows, you can simply remove the `example=True` argument and supply your own configuration file. If you don't have one yet, it will automatically supply one if you use `Cashflow()`. See the Notebooks as found [here](https://www.jeroenbouma.com/projects/personalfinance) for an in-depth explanation.
+Before it does anything, it will download the example datasets as found [here](https://github.com/JerBouma/PersonalFinance/tree/main/examples). This is merely meant for you to understand how the functionality works. When you are ready to use it for your own cashflows, you can simply remove the `example=True` argument and supply your own configuration file. If you don't have one yet, it will automatically supply one if you use `Cashflow()`. **See the Notebooks as found [here](https://www.jeroenbouma.com/projects/personalfinance) for an in-depth explanation.**
 
 The `perform_analysis` functionality does the following things:
 
@@ -78,7 +78,7 @@ Besides that, you don't have to continue in Excel if you are handy with Python a
 
 
 ```python
-cashflow.get_period_overview(period='yearly')
+cashflows.get_period_overview(period='yearly')
 ```
 
 Which returns:
@@ -99,7 +99,7 @@ Which returns:
 And the following:
 
 ```python
-cashflow.get_transactions_overview(period='weekly')
+cashflows.get_transactions_overview(period='weekly')
 ```
 
 Which returns:
@@ -117,7 +117,7 @@ These datasets make it possible to plot the spending pattern over time for each 
 import matplotlib.pyplot as plt
 
 # Obtain the Quarterly Cashflow Overview
-quarterly_cashflows = cashflow.get_period_overview(period='quarterly')
+quarterly_cashflows = cashflows.get_period_overview(period='quarterly')
 
 # Define the colormap
 cmap = plt.get_cmap('tab20c')
