@@ -1,6 +1,7 @@
-# Cash Flow Configuration for FinancePortfolio by Jeroen Bouma (JerBouma)
+# Cash Flow Configuration for PersonalFinance by Jeroen Bouma (JerBouma)
 # With this configuration, you are able to get a complete overview of 
 # your finances with categorized transactions.
+# Find the repository here: https://github.com/JerBouma/PersonalFinance
 ---
 
 general:
