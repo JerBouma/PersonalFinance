@@ -53,10 +53,6 @@ general:
 
 excel:
   file_name: Cash Flow Example Overview.xlsx
-  # Whether to overwrite the file if it already exists
-  # If set to false, it will create a new file. If set to true,
-  # it will fill the existing file
-  overwrite: false
   # Define the currency in which the numbers need to be denoted,
   # if None specified, it will make not alterations to the numbers
   # currency can be anything that Excel supports (e.g. € or $)
