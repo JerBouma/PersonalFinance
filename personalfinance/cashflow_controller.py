@@ -645,7 +645,6 @@ class Cashflow:
         self,
         excel_file_name: str | None = None,
         currency: str | None = None,
-        overwrite: bool | None = None,
     ):
         """
         Create an Excel template file with specified data sheets.
@@ -678,8 +677,6 @@ class Cashflow:
         )
 
         currency = currency if currency else self._cfg["excel"]["currency"]
-
-        overwrite = overwrite if overwrite else self._cfg["excel"]["overwrite"]
 
         writer = pd.ExcelWriter(
             excel_file_name,
