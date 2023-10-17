@@ -1,0 +1,719 @@
+# Cash Flow Configuration for FinancePortfolio by Jeroen Bouma (JerBouma)
+# With this configuration, you are able to get a complete overview of 
+# your finances with categorized transactions.
+# Find instructions here: https://github.com/JerBouma/FinancePortfolio
+---
+
+general:
+  # These are the location of the cash flow (bank statements) files.
+  # You can specify a folder (all xlsx and csv in the folder) or point
+  # to a specific file of your choosing
+  file_location: examples/cashflows
+  # These are the columns that represent dates. It will pick the first
+  # column it finds in the list and it is fine if the column isn't in
+  # the dataset
+  date_columns:
+    - Date
+  date_format: "%Y-%m-%d"
+  # These are the columns that represent the description and are used
+  # to determine the category of the transaction. It will look into
+  # all columns it can find that match with this list
+  description_columns:
+    - Name
+    - Description
+  # These columns represent the amount of money that is being spent
+  # or is being received. It will pick the first column it finds.
+  amount_columns:
+    - Value
+  # This defines the decimal seperator if applicable. This is only
+  # relevant if the Amount column is formatted as a string.
+  decimal_separator: ','
+  # These are optional columns that can be used to determine whether
+  # the transaction is negative or positive. This is only relevant
+  # if the numbers are for example all positive. The logic here is
+  # as follows: COLUMN: COLUMN_VALUE: MULTIPLIER
+  cost_or_income_columns:
+    # Minus Plus:
+    #   Minus: -1
+    #   Plus: 1
+  
+  # This is the threshold for the categorization algorithm which is
+  # Levenshtein Distance. The higher, the more strict the algorithm
+  categorization_threshold: 90
+  # Whether to automatically group duplicates within the same file and
+  # remove duplicates between files. This is useful if you have multiple
+  # files that have overlapping periods
+  adjust_duplicates: true
+  # Within this variable some categories can be excluded from the total
+  # overview. These are usually categories that are just moving money
+  # around instead of being actual income or expenses. The columns
+  # defined here are important to prevent incorrect Total calculations
+  category_exclusions:
+    - Exclusions
+
+excel:
+  file_name: Cash Flow Example Overview.xlsx
+  # Define the currency in which the numbers need to be denoted,
+  # if None specified, it will make not alterations to the numbers
+  # currency can be anything that Excel supports (e.g. € or $)
+  currency: €
+  # Define for what periods you wish to see an overview, can be
+  # Daily, Weekly, Monthly, Quarterly and/or Yearly.
+  overviews:
+    - Daily
+    - Weekly
+    - Monthly
+    - Quarterly
+    - Yearly
+
+categories:
+  # Categories can  be any name and any number of categories you
+  # would like. Make sure to include an 'Exclusions' category
+  # that filters out transactions that are for example just moving
+  # money around your own accounts (e.g. Checking to Savings)
+
+  # The categories that are defined here are just an illustration
+  # of the way this works and keywords you can think of
+  Exclusions:
+    - spaarrekening
+    - toprekening
+
+  Income:
+    - salaris
+    - loon
+    - stuvia
+    - knoowy
+    - STRIPE
+    - clvr web design
+    - pggm
+    - openbb
+    - asr
+    - teruggaaf
+    - zorgtoeslag
+    - studiefinanciering
+    - storting ing
+    - fietsmobiliteit
+    - Transfer provisie
+    - Infomedics
+    - J-Ro Design
+
+  Investing:
+    - de giro
+    - degiro
+    - flatexbank
+
+  Charity:
+    - Unicef
+    - Wereld Natuur Fonds
+    - KWF Kankerbestrijding
+
+  Government:
+    - Belastingdienst
+    - Vergunningen, Toezicht en Handhaving
+    - Geneente Utrecht
+    - OranjePakket
+    - BasisPakket
+    - Refund
+    - OK Utrecht
+    - Verklaring omtrent het Gedrag
+    - STICHTING STADHUISPLEI
+    - Verkeersboetes
+    - Administratie- en Inkoopcentrum
+    - Kamer van Koophandel
+    - Gem Smallingerland
+    - GEMEENTE ZWOLLE
+
+  Health and Insurance:
+    - AnderZorg NV
+    - Nationale Nederlanden
+    - Diakonessenhuis
+    - Tandarts
+    - Studentist
+    - Hair App
+    - Hair & Beauty
+    - Haarstijl
+    - Salon Haarsmaak
+
+  Housing:
+    - Kamernet
+    - Borg
+    - Huur
+    - Pontiac
+    - Makelaar
+    - RentSlam
+    - Diensten
+  Study:
+    - HG INSTITUUTSWINKEL
+    - Stichting VBA Opleidingsinstituut
+    - Universiteit
+    - OLSTTOREN
+    - CAMPUS
+    - Symposium
+    - Hanzehogeschool
+    - Hanze Groningen
+    - Wereldstage
+    - JOHO
+    - CURACAO
+    - Willemstad
+    - UvAScience
+    - Beleggings Vereniging Voor Kennis
+    - Online Assessment Training
+    - University Shop
+    - Economie Combinatie Utrecht
+    - UMCU
+    - Kamer der ECU'92
+    - ecu92.nl
+
+  Subscriptions:
+    - Disney+
+    - Netflix
+    - Spotify
+    - Videoland
+    - NPO Start
+    - Youfone
+    - Podimo
+    - Tele2
+    - Hellas Utrecht
+    - Swapfiets
+    - Blendle
+    - Dag en Nacht Media # Podcasts
+    - KPN
+    - Storytel
+    - hollandsnieuwe
+    - Vodafone
+
+  Transactions:
+    - Marktplaats
+    - Geldautomaat
+    - Ineke Reitsma
+    - geldmaat
+    - geldopname
+    - betaalverzoek
+    - tikkie
+    - creditcard
+    - PayPal
+    - WietBetaaltWat
+    - opname
+    - GELDAUTOMAAT
+    - Leon Zwart
+    - Aegon Bank N.V.
+    - Bunq B.V.
+    - Identificatiestorting
+    - Bankhaus
+
+
+  Transport:
+    # Public Transport:
+    - NS GROEP
+    - NS-Almelo
+    - ov-chipkaart
+    - NS Internationaal
+    - NX BUS CONTACTLESS
+    - NS-Enschede
+    - NS-Heerenveen
+    - Reiskosten
+    - NS- A'dam Amstel
+    - QBuzz
+
+    # Taxi
+    - Uber
+
+    # Bicycle related
+    - Bike
+    - Fiets
+    - UNIGARANT
+    - TWEEWIELERCENTRUM
+
+    # Car Related
+    - Mijn CBR
+    - Autobedrijf
+    - Tango
+    - Tinq
+    - TotalEnergies
+    - Parkeerterrein
+    - BP VLIETE
+    - BP FILL
+    - Parkeren
+    - Parkmobile
+    - Carwash
+    - Shell
+    - Esso Express
+    - De Wasdas
+    - Park. Gem. Amersfoort
+    - inShared
+    - Aral Station
+    - AAIS Verkerk
+    - Parkeergarage
+    - Tankstelle
+    - Q Park
+    - park
+    - kwik fit
+    - Autoschadeherstel
+    - Car Rental
+    - Legal Shared
+    - Media Park
+    - Autotaal
+    - PG Stadhuisplein
+    - Smits Bergambacht BERGAMBACHT
+
+  Sports:
+    - Basic Fit
+    - Basic-Fit
+    - Singelloop
+    - Klimmuur
+    - Skilift
+    - Kartbaan
+    - Rivierwijkers
+    - Sportbedrijf
+    - Korfbal
+    - 8 van Drachten
+    - Appelscha-Outdoor
+    - Iwan.nl
+    - Squash
+    - Zwembad
+    - CrossFit
+    - ELFSTEDENHAL
+
+  Shopping:
+    - Fashion
+    - Mode
+    - action
+    - blokker
+    - Hema
+    - amazon
+    - bol.com
+    - bever
+    - kathmandu
+    - Decathlon
+    - Glencoe B.V. 
+    - Run2Day
+    - its a present
+    - klein paleis
+    - Kookwinkel
+    - Noordertuin
+    - Gall & Gall
+    - Gall en Gall
+    - Thuishaven
+    - Una Mas
+    - Mitra
+    - Hearst Magazines
+    - The Sting
+    - NZA
+    - IKEA
+    - Boombrush
+    - De Bakkerswinkel
+    - Mediamarkt
+    - Media Markt
+    - Intratuin
+    - UAB Helis
+    - Beaumotica
+    - Walmart
+    - Rituals
+    - Casa
+    - Etos
+    - Kruidvat
+    - Microsoft
+    - golf123.nl
+    - Douglas
+    - Praxis
+    - Utrecht Zuid Prx
+    - CoolBlue
+    - Tink
+    - New Zealand Auckland
+    - Belsimpel
+    - SLEUTELKONING
+    - Spellenvariant
+    - Golfdiscountstore
+    - Koninklijke PostNL
+    - Meubelbaas
+    - Zalando
+    - Opposuits
+    - Shop And Go
+    - Subcultures
+    - Boekhandel
+    - A-Mac
+    - Xenos
+    - CA 57 Drachten
+    - Greetz.nl
+    - Plus
+    - Cadeaubonnen.nl
+    - Omoda
+    - Primera
+    - HINKELMAN
+    - Bloemsierkunst
+    - ANWB
+    - Vivant
+    - Prenatal
+    - Broese
+    - ONLY
+    - Intertoys
+    - Gamma
+    - Stek
+    - Alternate Nederland
+    - Flora
+    - Drogisterij
+    - Bristol
+    - Bruna
+    - Steam
+    - Dixons
+    - Marskramer
+    - Futurumshop
+    - Wibra
+    - HALFORDS
+    - Cameranu
+    - Expert
+    - KabelDirect
+    - Bax-shop
+    - Leffel Sport
+    - Veneboer Sport
+    - Van Haren
+    - Jack & Jones
+    - Jack&Jones
+    - Intersport
+    - H&M
+    - PRIMARK
+    - Warenhuis
+    - Bitvavo
+    - Azerty
+    - Internetstores
+    - TOM B.V.
+    - Google Ireland Limited
+    - Transip B.V.
+    - Braun
+    - Brandfield
+    - Flying Tiger
+    - C&A
+    - Perry Sport
+    - Twin Sport
+    - BIGBAZAR
+    - BONUSWINKELEN
+    - JACOBS DOUWE EGBERTS
+    - Zeeman
+    - De Bijenkorf
+    - Nedgame
+    - Hemdvoorhem
+    - Dille & Kamille
+    - Stropdas24.nl
+    - Game Mania
+    - BOLCOM
+    - De Heeren van Rinsma
+    - ZUIVELHOEVE
+    - OP IS OP
+
+  Groceries:
+    - Coop
+    - Albert Heijn
+    - AH to go
+    - AH
+    - kaas
+    - C1000
+    - jumbo
+    - aldi
+    - lidl
+    - Picnic
+    - Poiesz
+    - Tesco
+    - Boons Markt
+    - Boni
+    - Eurospar
+    - Gorillas
+    - DE BIERVERTELLER
+    - Carrefour
+    - SUPERMERCADO
+    - Flink
+    - REWE
+    - Spar
+    - diversmarkt
+    - market
+    - supermarkt
+    - Billa
+    - Bakkerij
+    - Dirk vdbroek
+    - De Bierkelder
+
+  Food and Drinks:
+    - bar
+    - cafe
+    - kafe
+    - Caffe
+    - bistro
+    - Eat Out
+    - koffie
+    - SON NLD
+    - Graancirkel
+    - The Jack Rabbit
+    - Huiskamer MP
+    - HMSHost
+    - Bambi UTRECHT
+    - CUCARACHA
+    - Vapiano
+    - GRILL
+    - WOKGARDEN
+    - DE PINTELIER
+    - Huize Maas
+    - KNAEK
+    - catering
+    - De Belg Waterloo
+    - Pils
+    - culinaire
+    - BERENKUIL
+    - doner
+    - Sandwich
+    - Grieks Spec
+    - vis
+    - sushi
+    - BUFFET
+    - Dunkin Donuts
+    - thee
+    - THE FLORIN
+    - POK PERFECT
+    - Smakers B.V.
+    - snacks
+    - food
+    - eten
+    - Pizzeria
+    - Manneke Pis
+    - MICK O CONNELLS
+    - Lachende Koe
+    - bakker bart
+    - restaurant
+    - Horeca
+    - Toque Toque
+    - Horec
+    - eethuis
+    - Kantine
+    - pizza
+    - coffee
+    - thuisbezorgd
+    - broodje ben
+    - Subway
+    - K F C
+    - KFC
+    - cupp
+    - DRIE GEZUSTERS
+    - La Cubanita
+    - Broodhuys
+    - GroenGras Conceptmakers
+    - Burgerme
+    - Oliver
+    - Venezia
+    - Sevilla
+    - Dominos
+    - De Zakkendrager
+    - KNABBEL EN BABBEL
+    - Eazie
+    - Sondrio de Luca
+    - Athina
+    - De ll Heeren
+    - Pepe & Coco
+    - McDonalds
+    - MC Donalds
+    - McD
+    - Mc Drive
+    - MC DO
+    - Popocatepetl
+    - espresso
+    - Taco Mundo
+    - Stan
+    - Oudaen
+    - Argos
+    - NYPD
+    - ijs
+    - Febo
+    - Brownies
+    - Butl.nl
+    - De Colonel
+    - Social Deal
+    - Villa Orloff
+    - Posthuys
+    - Gestrand
+    - Strandpaviljoen
+    - Kloek
+    - Kantien
+    - Proeflokaal
+    - LOKAAL 35
+    - De Beurs
+    - Sanju Ramen
+    - Pannenkoekenhuis
+    - DOUBLE DUTCH
+    - Skihutte
+    - Dapp
+    - Veilingmeester BV
+    - DE VUURSCHE BOER
+    - Kiosk
+    - De Utrechtse Watertoren
+    - Oliebollen
+    - De Beuntjes
+    - Chidoz
+    - Anna Pancakes
+    - VB Utrecht Nachtegaa
+    - Dogma
+    - Koi
+    - Starbucks
+    - Tapa Tapa
+    - Tapperij
+    - Taphuys
+    - China Town
+    - Herberg Wilde Zwijn
+    - Spaghetteria
+    - UNITY BV UTRECHT
+    - Lazy Lemon
+    - Ledig Erf
+    - Big Bread Popeye
+    - De Jonckheer
+    - Mannenken Pis
+    - De Blauwe Druif
+    - Zeeburg
+    - De Vergulde Turf
+    - Shabu
+    - Sodexo
+    - SiteDish
+    - Ouwe Dikke Dries
+    - Miss Scarlett
+    - Lekkerrr Emiclaer
+    - Soia
+    - Shaam
+    - Gerrit
+    - OLIDA
+    - Klein Berlijn
+
+    # Specific places
+    - JOOP SCHOORL
+    - HAZ B.V
+    - HET WAPEN VAN EMMEN
+    - t Stegelke Slenaken
+    - M EN M 0 BABBERICH
+    - 10AM02 NIEUWEGEIN
+    - ZETTLEALFA TRIMSALON
+    - Groot Melkhuis BV.
+    - ROBIER UTRECHT
+    - KRAMER V DOORN
+    - CCVPANDARVE
+    - Sumventure
+    - De Marke
+    - Puur Utrecht
+    - LeCuq
+    - HMS Host International
+    - H van Gorkom
+    - Les Abeilles
+    - De Utrechter
+    - De Pagode
+    - Gebr O M Brou
+    - Magoya
+    - Werkspoorkad
+    - Sugo
+    - Amicaal
+    - Brouwdok
+    - Thai
+    - Chupitos
+
+  Holidays:
+    - HOSTEL
+    - Travel
+    - Ryanair
+    - Rederij
+    - Landal
+    - Schiphol
+    - airbnb
+    - booking
+    - hotel
+    - D-rt Retail BV # Lissabon
+    - GEL Koers # Georgia
+    - GBP Koers # United Kingdom
+    - Birmingham # Business Trip
+    - Brugge # Holiday
+    - Lisboa # Holiday
+    - LISBON # Holiday
+    - Budapest # Holiday
+    - BUDAP # Holiday
+    - LJUBLJANA # Holiday
+    - LJUBL # Holiday
+    - Wien # Holiday
+    - Innsbruck
+    - Winterberg
+    - MARSEILLE
+    - LILLE
+    - MADRID
+    - MADRI
+    - VALEN # Holiday
+    - PARIS
+    - Transavia
+    - Fletcher
+    - Interrail
+    - FIRENZE # Holiday
+    - GetYourGuide
+    - ROMA # Holiday
+    - IbkVerkehrsbetriebe # AUT
+    - NYAzoellsde # DEU
+    - CHF Koers # Switzerland
+    - GAVIRATE # Holiday
+    - TRAVEDONA # Holiday
+    - TOSCANI # Holiday
+    - BERLIN # Holiday
+    - Kitzbuehel # Holiday
+    - STUTTGART # Holiday
+    - FRANKFURT
+    - TUI Nederland
+    - Kaunertal
+    - Vliegwinkel
+    - Gent
+    - MUENCHEN # Holiday
+    - Ibiza
+    - VAKANTIEVEILINGEN
+
+  Cultural:
+    - Museum
+    - GOSharing
+    - club
+    - theater
+    - schouwburg
+    - Stichting De Lawei
+    - Wildlands
+    - Pathe
+    - AVATARZ
+    - Muziekpaleis
+    - Snooker
+    - Sanifair
+    - 2THELOO
+    - HAARZUILENS
+    - Beatrix Utrecht
+    - Gamestate
+    - Seats2Meet
+    - Breeze Social
+    - Van Gogh
+    - Hart van Utrecht
+    - Paleis het Loo
+    - Apenheul
+    - Bowling
+    - Four Entertainment
+    - Groupon
+    - ActievandeDag
+    - Anatomiegebouw
+    - beach
+    - Henschotermeer
+    - WESTERSCHELDE TUNNEL
+    - NeustiftMiedersSchon
+    - SUMUP
+    - EJ KOELEWIJN BV BUNSCHOTENSP
+    - NYXManuelRuiAzinhaisN
+
+  Festivals, Clubs and Concerts:
+    - Festival
+    - Simmerdeis
+    - Paylogic
+    - JANSKERKHOF EVENTS
+    - TivoliVredenburg
+    - Afas Live
+    - Eventbrite
+    - De Parade
+    - EV HANDS B.V. NIJVERDAL
+    - DUTCHBAND.COM
+    - TickerSwap
+    - TICKETSCRIPT
+    - Tomorrowland
+    - MUNTVERKOO
+    - Ticketmaster
+    - Melkweg
+    - t Oude Pothuys
+    - EVENEMENTENSERVICE
+    - Iduna
