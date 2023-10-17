@@ -2,6 +2,7 @@
 *.xlsx
 *.pickle
 *.ipynb
+*.csv
 configurations/*.yaml
 !configurations/cashflow.yaml
 !configurations/portfolio.yaml
@@ -9,7 +10,9 @@ portfolio/*.csv
 portfolio/*.xlsx
 cashflows/*.csv
 cashflows/*.xlsx
-!examples/
+!examples/*.ipynb
+!examples/*.csv
+
 
 
 # Byte-compiled / optimized / DLL files
